@@ -179,9 +179,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 /* 起動画面が消えるまで本体を表示しない（読み込み中にカレンダーが一瞬見えるのを防ぐ。JSに頼らずCSSだけで時間が来たら表示） */
 header, main, .tabbar { visibility: hidden; animation: revealAfterSplash 0s linear 1.45s forwards; }
 @keyframes revealAfterSplash { to { visibility: visible; } }
-@keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes sheetUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.view.active { animation: viewIn .25s ease; }
+.view.active { animation: viewIn .45s cubic-bezier(.22,.61,.36,1); }
+@keyframes titleIn { from { opacity: 0; } to { opacity: 1; } }
+header h1 { animation: titleIn .45s ease; }
 .overlay.open .sheet { animation: sheetUp .22s ease; }
 .sheet::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: -6px auto 12px; }
 .empty-ic { width: 72px; height: 72px; color: var(--accent2); display: block; margin: 0 auto 12px; }
@@ -191,6 +193,8 @@ header, main, .tabbar { visibility: hidden; animation: revealAfterSplash 0s line
 .tabbar button.active { color: var(--accent); font-weight: bold; }
 .tabbar button.active .ico { background: var(--accent-soft); }
 .tabbar button.active { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) { .view.active, header h1 { animation: none; } }
 /* 成長グラフ */
 .seg { display: flex; gap: 6px; margin-bottom: 10px; }
 .seg button { flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; }
@@ -242,6 +246,14 @@ body.kb-open .kb-row { display: flex; }
 .opt-row button.active { background: var(--hero); border-color: transparent; color: #fff; font-weight: bold; }
 textarea.export-text { width: 100%; min-height: 120px; font-size: 12px; margin-top: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); padding: 8px; }
 input[type="file"] { font-size: 13px; color: var(--muted); max-width: 100%; }
+/* 設定画面を、スクロールせず1画面に収めるための詰め方 */
+#view-settings .setting-group { padding: 10px 14px; margin-bottom: 8px; }
+#view-settings .setting-group h3 { margin-bottom: 6px; }
+#view-settings .sub-h { margin-top: 12px; }
+#view-settings .opt-row button { padding: 8px; }
+#view-settings button.primary { padding: 8px 16px; }
+#view-settings .hint { margin-top: 2px; line-height: 1.45; }
+main:has(#view-settings.active) { padding-bottom: 72px; }
 .overlay {
   position: fixed; inset: 0; background: rgba(10,30,15,0.45);
   display: none; align-items: flex-end; justify-content: center; z-index: 20;
@@ -289,6 +301,66 @@ textarea { min-height: 70px; resize: vertical; }
   opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 40; max-width: 90%;
 }
 .toast.show { opacity: 1; }
+.tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-chip { display: inline-block; font-size: 12px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 8px; margin: 3px 3px 0 0; }
+button.tag-chip.pick { font: inherit; font-size: 14px; padding: 6px 12px; margin: 0; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; }
+button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: bold; }
+.tag-chip .x { margin-left: 6px; color: var(--danger); }
+.tag-add { display: flex; gap: 8px; margin-top: 8px; }
+.tag-add input { flex: 1; min-width: 0; }
+.tag-add button { flex-shrink: 0; padding: 8px 12px; font-size: 13px; }
+.fold-label { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; padding: 6px 0; background: none; border: none; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; text-align: left; }
+.fold-label #lTagsCaret { font-size: 11px; }
+.fold-label #lTagsSel { margin-left: 6px; color: var(--accent); font-size: 13px; }
+#lTagsBody .tag-wrap { padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+#lTagsBody button.tag-chip.pick:not(.on) { background: var(--surface); }
+
+/* タグの並べ替え（長押しで持ち上げる） */
+.tag-row { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; background: var(--surface); position: relative; }
+.tag-row.dragging { z-index: 2; transform-origin: center; box-shadow: 0 6px 18px rgba(0,0,0,.22); border-radius: 12px; background: var(--accent-soft); padding-left: 10px; padding-right: 10px; }
+#tagList.sorting { touch-action: none; }
+/* 記録画面を、スクロールせず1画面に収めるための詰め方（この画面だけ） */
+#logOverlay .sheet { max-height: 96vh; padding: 12px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+#logOverlay .sheet::before { margin: 0 auto 6px; }
+#logOverlay .sheet h2 { margin: 0 0 6px; }
+#logOverlay label { margin: 8px 0 3px; font-size: 14px; }
+#logOverlay input[type="number"], #logOverlay select, #logOverlay textarea { padding: 8px 10px; }
+#logOverlay .day-nav button { padding: 4px 14px; }
+#logOverlay textarea { min-height: 52px; height: 52px; resize: none; }
+#logOverlay .photo-row { display: flex; align-items: center; gap: 8px; }
+#logOverlay .photo-row input[type="file"] { flex: 1; min-width: 0; }
+#logOverlay .photo-preview { width: 44px; height: 44px; max-height: none; margin: 0; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+#logOverlay #lPhotoClear { padding: 6px 12px; font-size: 12px; flex-shrink: 0; }
+#logOverlay .fold-label { margin: 2px 0 0; padding: 5px 0; font-size: 14px; }
+#logOverlay #lTagsBody .tag-wrap { padding: 6px; }
+#logOverlay .tag-wrap { gap: 5px; }
+#logOverlay button.tag-chip.pick { padding: 4px 11px; font-size: 14px; }
+#logOverlay .btns { margin-top: 4px; padding: 8px 0 calc(2px + env(safe-area-inset-bottom, 0px)); }
+
+/* お世話の記録（植物の選択）画面：内容は固定し、植物の一覧だけをスクロールさせる */
+#pickOverlay .sheet { display: flex; flex-direction: column; overflow: hidden; }
+#pickOverlay .sheet > * { flex-shrink: 0; }
+#pickOverlay #pickPlants { flex: 1 1 auto; min-height: 96px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+#logOverlay .size-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+#logOverlay .size-row span { font-size: 14px; color: var(--muted); }
+#logOverlay .size-row span:first-child { width: 40px; }
+#logOverlay .size-row input { flex: 1; min-width: 0; }
+/* 余白の調整：縦に余裕のある画面(最近のiPhone)では、記録画面の間隔を広げる。小さい画面は今までどおり詰めて1画面に収める */
+@media (min-height: 760px) {
+  #logOverlay .sheet { padding-top: 18px; }
+  #logOverlay .sheet h2 { margin-bottom: 10px; }
+  #logOverlay label { margin-top: 14px; }
+  #logOverlay .fold-label { margin-top: 10px; }
+  #logOverlay textarea { height: 64px; min-height: 64px; }
+  #logOverlay .size-row { margin-top: 10px; }
+  #logOverlay #lTagsBody .tag-wrap { padding: 8px; gap: 7px; }
+  #logOverlay .btns { margin-top: 12px; }
+}
+/* 日ごとの記録・履歴の一覧：行の間と行内の間隔をゆったりさせる */
+#dayBody .item, #historyBody .item { padding: 14px 0; }
+#dayBody .item > span:first-child, #historyBody .item > span:first-child { line-height: 1.75; }
+#dayBody .tag-chip, #historyBody .tag-chip { margin-top: 5px; }
+#dayBody .measure, #historyBody .measure { margin-top: 5px; }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Verdant Log 2">
@@ -325,7 +397,6 @@ textarea { min-height: 70px; resize: vertical; }
       </div>
       <div class="cal-grid" id="calGrid" style="margin-top:4px;"></div>
     </div>
-    <div class="hint" style="text-align:center;margin-top:10px;">日付をタップすると、その日の記録を見たり追加したりできます。</div>
   </section>
   <section class="view" id="view-plants">
     <div class="row-head">
@@ -367,22 +438,27 @@ textarea { min-height: 70px; resize: vertical; }
       </div>
     </div>
     <div class="setting-group">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div><h3 style="margin:0;">状態タグ</h3><div class="hint" id="tagCount"></div></div>
+        <button class="primary" id="tagManageBtn" type="button" style="flex-shrink:0;">編集</button>
+      </div>
+    </div>
+    <div class="setting-group">
       <h3>バックアップ</h3>
-      <div class="hint">植物・記録・写真をまとめてファイルに書き出せます。</div>
-      <div style="margin-top:10px;"><button class="primary" id="exportBtn">データを書き出す</button></div>
+      <div class="hint backup-info" id="backupInfo"></div>
+      <div style="margin-top:8px;"><button class="primary" id="exportBtn">データを書き出す</button></div>
       <div id="exportFallback" style="display:none;">
         <textarea class="export-text" id="exportText" readonly></textarea>
         <div style="margin-top:6px;"><button class="secondary" id="copyExport">内容をコピー</button></div>
         <div class="hint">ファイルを保存できない環境のため、内容をコピーして保存してください。</div>
       </div>
-      <h3 style="margin-top:18px;">読み込み</h3>
+      <h3 class="sub-h">読み込み</h3>
       <input type="file" id="importFile" accept="application/json,.json">
       <div class="hint">読み込むと、今のデータは選んだファイルの内容に置き換わります。</div>
     </div>
     <div class="setting-group">
       <h3>データ</h3>
       <div class="hint" id="dataInfo"></div>
-      <div class="hint">データはこの端末のブラウザに保存されます。</div>
     </div>
   </section>
 </main>
@@ -409,17 +485,16 @@ textarea { min-height: 70px; resize: vertical; }
       <select id="fCat"></select>
       <label>品種</label>
       <select id="fVar"></select>
-      <input type="text" id="fVarOther" maxlength="30" placeholder="品種名を入力" style="display:none;margin-top:8px;">
+      <input type="text" id="fVarOther" maxlength="30" style="display:none;margin-top:8px;">
     </div>
     <div id="textMode" style="display:none;">
       <input type="text" id="fTypeText" maxlength="30">
     </div>
-    <label>購入日・迎えた日（任意）</label>
+    <label>購入日・迎えた日</label>
     <input type="date" id="fAcquired">
-    <label>水やりの間隔（任意・日）</label>
+    <label>水やりの間隔（日）</label>
     <input type="number" id="fInterval" min="1" max="365">
-    <div class="hint">空欄なら水やり予定は作りません。</div>
-    <label>メモ（任意）</label>
+    <label>メモ</label>
     <textarea id="fMemo" maxlength="300"></textarea>
     <div class="btns">
       <button class="secondary" id="editCancel">キャンセル</button>
@@ -452,7 +527,7 @@ textarea { min-height: 70px; resize: vertical; }
     <h2>成長日記を書く</h2>
     <label>日付</label>
     <input type="date" id="dDate">
-    <label>写真（任意）</label>
+    <label>写真</label>
     <input type="file" id="dPhoto" accept="image/*">
     <label>内容</label>
     <textarea id="dText" maxlength="500"></textarea>
@@ -476,7 +551,6 @@ textarea { min-height: 70px; resize: vertical; }
 <div class="overlay" id="pickOverlay" style="z-index:21;">
   <div class="sheet">
     <h2>お世話の記録</h2>
-    <div class="hint">植物と内容は、どちらを先に選んでもかまいません。複数の植物はまとめて記録できます。</div>
     <div id="pickPlants" style="margin-top:8px;"></div>
     <div class="section"><h3>内容</h3><div class="action-grid" id="pickActions"></div></div>
     <div class="btns"><button class="secondary" id="pickCancel">キャンセル</button><button class="primary" id="pickSave" disabled>保存</button></div>
@@ -500,7 +574,6 @@ textarea { min-height: 70px; resize: vertical; }
 <div class="overlay" id="plantPickOverlay">
   <div class="sheet">
     <h2>植物を選ぶ</h2>
-    <div class="hint">グラフを表示する植物をタップしてください</div>
     <div id="gPickList" style="margin-top:8px;"></div>
     <div class="btns"><button class="secondary" id="gPickCancel">閉じる</button></div>
   </div>
@@ -509,7 +582,6 @@ textarea { min-height: 70px; resize: vertical; }
 <div class="overlay" id="logOverlay" style="z-index:22;">
   <div class="sheet">
     <h2 id="logTitle">記録する</h2>
-    <label>日付</label>
     <div class="day-nav">
       <button class="secondary" id="lPrev" type="button">‹</button>
       <div class="day-text" id="lDateText"></div>
@@ -520,18 +592,22 @@ textarea { min-height: 70px; resize: vertical; }
     <select id="lPlant"></select>
     <label>内容</label>
     <select id="lAction"></select>
-    <label>サイズ（任意・mm）</label>
-    <div class="two">
-      <div><input type="number" id="lHeight" min="0" max="99999" step="1" placeholder="高さ（mm）"></div>
-      <div><input type="number" id="lDia" min="0" max="99999" step="1" placeholder="直径（mm）"></div>
+    <div id="lMemoBox">
+      <label>メモ</label>
+      <textarea id="lMemo" maxlength="200"></textarea>
     </div>
-    <div class="hint">高さは地面から先端まで、直径は鉢の上から見た幅や株元の太さなどを目安にどうぞ。</div>
-    <label>写真（任意）</label>
-    <input type="file" id="lPhoto" accept="image/*">
-    <img id="lPhotoPreview" class="photo-preview" alt="">
-    <div style="margin-top:6px;"><button class="secondary" id="lPhotoClear" style="padding:4px 12px;font-size:12px;display:none;">写真を外す</button></div>
-    <label>メモ（任意）</label>
-    <textarea id="lMemo" maxlength="200"></textarea>
+    <label>写真</label>
+    <div class="photo-row">
+      <input type="file" id="lPhoto" accept="image/*">
+      <img id="lPhotoPreview" class="photo-preview" alt="">
+      <button class="secondary" id="lPhotoClear" type="button" style="display:none;">外す</button>
+    </div>
+    <div class="size-row"><span>高さ</span><input type="number" id="lHeight" min="0" max="99999" step="1"><span>mm</span></div>
+    <div class="size-row"><span>直径</span><input type="number" id="lDia" min="0" max="99999" step="1"><span>mm</span></div>
+    <div id="lTagsBox">
+      <button type="button" class="fold-label" id="lTagsToggle"><span>状態</span><span id="lTagsCaret">▼</span><span id="lTagsSel"></span></button>
+      <div id="lTagsBody" style="display:none;"><div class="tag-wrap" id="lTags"></div></div>
+    </div>
     <div class="btns">
       <button class="secondary" id="logCancel">キャンセル</button>
       <button class="primary" id="logSave">保存</button>
@@ -559,16 +635,32 @@ textarea { min-height: 70px; resize: vertical; }
 
 <div class="toast" id="toast"></div>
 
+<div class="overlay" id="tagOverlay" style="z-index:21;">
+  <div class="sheet">
+    <h2>状態タグ</h2>
+    <div class="hint">タグを長押しして上下にドラッグすると、順番を入れ替えられます。</div>
+    <div class="tag-add">
+      <input type="text" id="tagNew" maxlength="12">
+      <button class="primary" id="tagAdd" type="button">追加</button>
+    </div>
+    <div id="tagList" style="margin-top:12px;"></div>
+    <div class="btns">
+      <button class="secondary" id="tagClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   "use strict";
 
   // ===== 定数（上限数・保存名・記録の種類・写真サイズなど） =====
-  const MAX_PLANTS = 20;
   const LEGACY_KEY = "plantManager.v1";   // 旧アプリの保存名（読み取り専用で引き継ぎに使う）
   const LS_KEY2 = "verdantLog2.v1";       // IndexedDBが使えない場合の予備
   const DB_NAME = "verdantLog2";
   const DB_STORE = "kv";
+  const DB_PHOTOS = "photos";   // 写真だけを別に保存する場所（記録の読み書きを軽くするため）
+  const DB_VERSION = 2;
   const OTHER = "その他";
   const OTHER_VAR = "__other";
   const ACTIONS = ["水やり", "植え替え", "肥料", "剪定", "様子メモ", "その他"];
@@ -659,6 +751,18 @@ textarea { min-height: 70px; resize: vertical; }
   const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
   const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  // ===== 状態タグ（記録に付けるタグの一覧と共通の処理） =====
+  const DEFAULT_TAGS = ["元気", "新芽", "花が咲いた", "葉が黄色い", "しおれ", "虫"];
+  const TAG_MAX_COUNT = 60; // 登録できるタグの数
+  // タグの一覧は設定の中に保存され、どの植物の記録でも共通で使える
+  function tagList() {
+    if (!Array.isArray(state.settings.tags)) state.settings.tags = DEFAULT_TAGS.slice();
+    return state.settings.tags;
+  }
+  function tagChipsHtml(tags) {
+    return (tags || []).map((t) => '<span class="tag-chip">' + escapeHtml(t) + '</span>').join("");
+  }
+
   // ===== 植物に関する共通ヘルパー（表示名・次の水やり日・最新写真など） =====
   // ---------- ヘルパー ----------
   function catOf(p) { return CATS[p.category] ? p.category : OTHER; }
@@ -744,7 +848,7 @@ textarea { min-height: 70px; resize: vertical; }
     if (id === "detailOverlay") detailId = null;
   }
 
-  ["editOverlay", "detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "pickOverlay", "wheelOverlay", "plantPickOverlay", "logOverlay", "photoOverlay"].forEach((id) => {
+  ["editOverlay", "detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "pickOverlay", "wheelOverlay", "plantPickOverlay", "logOverlay", "photoOverlay", "tagOverlay"].forEach((id) => {
     $(id).addEventListener("click", (e) => {
       if (e.target.id === id) closeOverlay(id);
     });
@@ -805,6 +909,89 @@ textarea { min-height: 70px; resize: vertical; }
     if (isField(a) && !isField(e.target) && e.target.tagName !== "SELECT") a.blur();
   }, true);
 
+  // ===== 写真の保存（記録とは別の場所に保存し、必要なときだけ読み込む） =====
+  // ---------- 写真 ----------
+  // 記録や植物の中には、写真の代わりに「ph:番号」という目印だけを入れておく。
+  // 写真の本体は別の保存場所にあり、画面に出すときだけ読み込む。
+  const photoCache = new Map();   // 番号 → 写真のデータ（一度読んだものを覚えておく）
+  let pending = new Map();        // まだ保存していない新しい写真（番号 → データ）
+  const storedIds = new Set();    // 保存場所にある写真の番号一覧
+
+  function eachPhotoSlot(data, fn) {
+    (data.plants || []).forEach((p) => {
+      if (p.photo) fn(p);
+      (p.diary || []).forEach((d) => { if (d.photo) fn(d); });
+    });
+    (data.logs || []).forEach((l) => { if (l.photo) fn(l); });
+  }
+
+  function photoImg(ref, extra) {
+    if (!ref) return "";
+    const attrs = extra ? " " + extra : "";
+    if (ref.startsWith("ph:")) return '<img data-ph="' + ref.slice(3) + '" alt=""' + attrs + '>';
+    return '<img src="' + ref + '" alt=""' + attrs + '>';
+  }
+
+  // 写真のデータを取り出す（まだ保存場所から読んでいなければ読み込む）
+  function getPhotoSrc(ref) {
+    if (!ref) return Promise.resolve(null);
+    if (!ref.startsWith("ph:")) return Promise.resolve(ref);
+    const id = ref.slice(3);
+    if (photoCache.has(id)) return Promise.resolve(photoCache.get(id));
+    if (!db || useLS) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      try {
+        const r = db.transaction(DB_PHOTOS, "readonly").objectStore(DB_PHOTOS).get(id);
+        r.onsuccess = () => { if (r.result) photoCache.set(id, r.result); resolve(r.result || null); };
+        r.onerror = () => resolve(null);
+      } catch (e) { resolve(null); }
+    });
+  }
+
+  // 画面に追加された写真の目印を、実際の写真に差し替える
+  function fillPhotoImgs(root) {
+    if (!root || root.nodeType !== 1) return;
+    const imgs = [];
+    if (root.matches && root.matches("img[data-ph]")) imgs.push(root);
+    root.querySelectorAll("img[data-ph]").forEach((i) => imgs.push(i));
+    imgs.forEach((img) => {
+      const id = img.dataset.ph;
+      getPhotoSrc("ph:" + id).then((src) => { if (src && img.dataset.ph === id) { img.src = src; img.removeAttribute("data-ph"); } });
+    });
+  }
+  function initPhotos() {
+    new MutationObserver((list) => {
+      list.forEach((m) => m.addedNodes.forEach((n) => fillPhotoImgs(n)));
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
+  // 保存のときに、写真の本体を別の保存場所へ移し、記録側には目印だけを残す
+  function externalizePhotos() {
+    eachPhotoSlot(state, (o) => {
+      if (o.photo.startsWith("data:")) {
+        const id = uid();
+        pending.set(id, o.photo);
+        photoCache.set(id, o.photo);
+        o.photo = "ph:" + id;
+      }
+    });
+  }
+  function usedPhotoIds() {
+    const used = new Set();
+    eachPhotoSlot(state, (o) => { if (o.photo.startsWith("ph:")) used.add(o.photo.slice(3)); });
+    return used;
+  }
+  // バックアップ用：写真の本体を含んだ形でデータを作る（ファイルの形式は従来どおり）
+  async function portableData() {
+    const data = JSON.parse(JSON.stringify({ plants: state.plants, logs: state.logs, settings: state.settings }));
+    const slots = [];
+    eachPhotoSlot(data, (o) => slots.push(o));
+    for (const o of slots) {
+      if (o.photo.startsWith("ph:")) o.photo = (await getPhotoSrc(o.photo)) || null;
+    }
+    return data;
+  }
+
   // ===== 保存・読み込み（IndexedDB／予備のlocalStorage／旧データの引き継ぎ） =====
   // ---------- 保存・読み込み ----------
   function migrate() {
@@ -814,6 +1001,14 @@ textarea { min-height: 70px; resize: vertical; }
         else { p.category = OTHER; }
       }
     });
+    // タグ「虫がいた」を「虫」に変更（一度だけ）
+    if (!state.settings.tagRename1) {
+      const ren = (t) => (t === "虫がいた" ? "虫" : t);
+      const uniq = (a) => a.filter((t, i) => a.indexOf(t) === i);
+      if (Array.isArray(state.settings.tags)) state.settings.tags = uniq(state.settings.tags.map(ren));
+      state.logs.forEach((l) => { if (Array.isArray(l.tags)) l.tags = uniq(l.tags.map(ren)); });
+      state.settings.tagRename1 = true;
+    }
     state.logs.forEach((l) => { if (l.height === undefined) l.height = null; if (l.diameter === undefined) l.diameter = null; });
   }
   let db = null, useLS = false, writing = false, dirty = false;
@@ -822,34 +1017,52 @@ textarea { min-height: 70px; resize: vertical; }
     return new Promise((resolve, reject) => {
       if (!window.indexedDB) { reject(new Error("noidb")); return; }
       let req;
-      try { req = indexedDB.open(DB_NAME, 1); } catch (e) { reject(e); return; }
-      req.onupgradeneeded = () => { req.result.createObjectStore(DB_STORE); };
-      req.onsuccess = () => resolve(req.result);
+      try { req = indexedDB.open(DB_NAME, DB_VERSION); } catch (e) { reject(e); return; }
+      req.onupgradeneeded = () => {
+        const d = req.result;
+        if (!d.objectStoreNames.contains(DB_STORE)) d.createObjectStore(DB_STORE);
+        if (!d.objectStoreNames.contains(DB_PHOTOS)) d.createObjectStore(DB_PHOTOS);
+      };
+      req.onsuccess = () => {
+        const d = req.result;
+        // 別のタブで古い版が開いていても、そちらを閉じて新しい版に譲る
+        d.onversionchange = () => d.close();
+        resolve(d);
+      };
       req.onerror = () => reject(req.error);
-      req.onblocked = () => reject(new Error("blocked"));
+      // 他で開いている間は待つ（失敗扱いにすると、保存先が変わってしまうため）
+      req.onblocked = () => {};
     });
   }
   function dbReadAll() {
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(DB_STORE, "readonly");
+      const tx = db.transaction([DB_STORE, DB_PHOTOS], "readonly");
       const st = tx.objectStore(DB_STORE);
       const out = {};
       ["plants", "logs", "settings"].forEach((k) => {
         const r = st.get(k);
         r.onsuccess = () => { out[k] = r.result; };
       });
+      // 写真は中身を読まず、番号の一覧だけ覚えておく（起動を軽くするため）
+      tx.objectStore(DB_PHOTOS).getAllKeys().onsuccess = (e) => {
+        storedIds.clear();
+        e.target.result.forEach((id) => storedIds.add(String(id)));
+      };
       tx.oncomplete = () => resolve(out);
       tx.onerror = () => reject(tx.error);
       tx.onabort = () => reject(tx.error);
     });
   }
-  function dbWriteAll(snap) {
+  function dbWriteAll(snap, photos, removeIds) {
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(DB_STORE, "readwrite");
+      const tx = db.transaction([DB_STORE, DB_PHOTOS], "readwrite");
       const st = tx.objectStore(DB_STORE);
       st.put(snap.plants, "plants");
       st.put(snap.logs, "logs");
       st.put(snap.settings, "settings");
+      const ps = tx.objectStore(DB_PHOTOS);
+      photos.forEach((v, id) => ps.put(v, id));
+      removeIds.forEach((id) => ps.delete(id));
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
       tx.onabort = () => reject(tx.error);
@@ -861,9 +1074,24 @@ textarea { min-height: 70px; resize: vertical; }
     if (writing) { dirty = true; return; }
     writing = true;
     dirty = false;
-    dbWriteAll({ plants: state.plants, logs: state.logs, settings: state.settings })
-      .then(() => { writing = false; if (dirty) flush(); })
-      .catch(() => { writing = false; toast("保存できませんでした。空き容量や設定をご確認ください"); });
+    externalizePhotos();
+    const used = usedPhotoIds();
+    const batch = new Map();
+    pending.forEach((v, id) => { if (used.has(id)) batch.set(id, v); });
+    pending = new Map();
+    const removeIds = [...storedIds].filter((id) => !used.has(id));
+    dbWriteAll({ plants: state.plants, logs: state.logs, settings: state.settings }, batch, removeIds)
+      .then(() => {
+        removeIds.forEach((id) => storedIds.delete(id));
+        batch.forEach((_, id) => storedIds.add(id));
+        writing = false;
+        if (dirty) flush();
+      })
+      .catch(() => {
+        batch.forEach((v, id) => pending.set(id, v));
+        writing = false;
+        toast("保存できませんでした。空き容量や設定をご確認ください");
+      });
   }
   function save() {
     if (useLS) {
@@ -902,8 +1130,13 @@ textarea { min-height: 70px; resize: vertical; }
       state.logs = Array.isArray(d.logs) ? d.logs : [];
       if (d.settings) state.settings = Object.assign(state.settings, d.settings);
     }
+    const hadTagFlag = !!state.settings.tagRename1;
     migrate();
-    if (imported) save();
+    if (!hadTagFlag && d) imported = true;
+    // 写真がまだ記録の中に直接入っている場合も、別の保存場所へ移すために一度保存する
+    let inline = false;
+    eachPhotoSlot(state, (o) => { if (o.photo.startsWith("data:")) inline = true; });
+    if (imported || inline) save();
     // ブラウザに、保存データを勝手に消さないよう依頼する
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* 未対応 */ }
   }
@@ -1058,8 +1291,7 @@ textarea { min-height: 70px; resize: vertical; }
   // ---------- 植物一覧 ----------
   function renderPlants() {
     const today = todayStr();
-    $("count").textContent = "登録数：" + state.plants.length + " / " + MAX_PLANTS;
-    $("addBtn").disabled = state.plants.length >= MAX_PLANTS;
+    $("count").textContent = "登録数：" + state.plants.length;
     $("empty").style.display = state.plants.length ? "none" : "block";
     $("grid").innerHTML = state.plants.map((p) => {
       const next = nextWaterDate(p);
@@ -1071,7 +1303,7 @@ textarea { min-height: 70px; resize: vertical; }
         else badge = '<span class="badge">あと' + diff + '日</span>';
       }
       const photo = p.photo || latestLogPhoto(p.id);
-      const thumb = photo ? '<img src="' + photo + '" alt="">' : CATS[catOf(p)].icon;
+      const thumb = photo ? photoImg(photo) : CATS[catOf(p)].icon;
       return '<button class="card" data-id="' + p.id + '" style="' + plantStyle(p) + '">' +
         '<div class="thumb">' + thumb + '</div>' +
         '<div class="info"><div class="name">' + escapeHtml(p.name) + '</div>' +
@@ -1168,7 +1400,7 @@ textarea { min-height: 70px; resize: vertical; }
     if (state.plants.length === 0) { toast("先に植物を登録してください"); return; }
     $("gPickList").innerHTML = state.plants.map((p) => {
       const photo = p.photo || latestLogPhoto(p.id);
-      const thumb = photo ? '<img src="' + photo + '" alt="">' : CATS[catOf(p)].icon;
+      const thumb = photo ? photoImg(photo) : CATS[catOf(p)].icon;
       return '<div class="pick-row' + (p.id === gPlantId ? ' selected' : '') + '" data-gp="' + p.id + '" style="' + plantStyle(p) + '">' +
         '<div class="pick-avatar">' + thumb + '</div>' +
         '<div class="pick-name">' + escapeHtml(p.name) + '</div>' +
@@ -1210,10 +1442,24 @@ textarea { min-height: 70px; resize: vertical; }
     document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === s.theme));
   }
 
+  // 最終バックアップからの経過日数を表示
+  function renderBackupInfo() {
+    const last = state.settings.lastBackup;
+    let text;
+    if (!last) text = "まだバックアップしていません";
+    else {
+      const n = Math.max(0, daysBetween(last, todayStr()));
+      text = "最終バックアップ：" + (n === 0 ? "今日" : n + "日前") + "（" + last.replace(/-/g, "/") + "）";
+    }
+    $("backupInfo").textContent = text;
+  }
+
   // ---------- 設定 ----------
   function renderSettings() {
     const base = "登録 " + state.plants.length + "株・記録 " + state.logs.length + "件・保存容量 約" + storageKB() + "KB";
     $("dataInfo").textContent = base;
+    renderTagCount();
+    renderBackupInfo();
     try {
       if (navigator.storage && navigator.storage.estimate) {
         navigator.storage.estimate().then((e) => {
@@ -1312,7 +1558,6 @@ textarea { min-height: 70px; resize: vertical; }
       if (p) Object.assign(p, data);
       toast("更新しました");
     } else {
-      if (state.plants.length >= MAX_PLANTS) { toast("登録は最大" + MAX_PLANTS + "株までです"); return; }
       state.plants.push(Object.assign({ id: uid(), photo: null, lastWatered: null, diary: [], createdAt: todayStr() }, data));
       toast("登録しました");
     }
@@ -1339,7 +1584,7 @@ textarea { min-height: 70px; resize: vertical; }
     const diary = (p.diary || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
     const diaryHtml = diary.length
       ? diary.map((d) => '<div class="diary-entry"><div class="date">' + escapeHtml(d.date) + '</div>' +
-          (d.photo ? '<img src="' + d.photo + '" alt="">' : '') +
+          photoImg(d.photo) +
           '<div>' + escapeHtml(d.text) + '</div>' +
           '<button class="secondary" style="margin-top:6px;padding:4px 10px;font-size:12px;" data-del-diary="' + d.id + '">この日記を削除</button></div>').join("")
       : '<div class="hint">まだ日記はありません。</div>';
@@ -1363,8 +1608,8 @@ textarea { min-height: 70px; resize: vertical; }
     (p.diary || []).forEach((d) => { if (d.photo) photos.push({ src: d.photo, cap: d.date + " ・ 日記" }); });
     const galleryHtml = photos.length
       ? '<div class="gallery">' + photos.map((ph, i) =>
-          '<button data-photo="' + i + '"><img src="' + ph.src + '" alt=""></button>').join("") + '</div>'
-      : '<div class="hint">まだ写真はありません。記録や日記に写真を付けると、ここに並びます。</div>';
+          '<button data-photo="' + i + '">' + photoImg(ph.src) + '</button>').join("") + '</div>'
+      : '<div class="hint">まだ写真はありません。</div>';
 
     $("detailBody").innerHTML =
       '<h2>' + escapeHtml(p.name) + '</h2>' +
@@ -1378,7 +1623,7 @@ textarea { min-height: 70px; resize: vertical; }
           ? '<div class="item"><span>' + p.waterInterval + '日ごと</span><small>次回 ' + (next || "-") + '</small></div>' +
             '<div class="item"><span>最終水やり</span><small>' + (p.lastWatered || "未記録") + '</small></div>' +
             '<div style="margin-top:8px;"><button class="primary" id="waterBtn">今日水やりした</button></div>'
-          : '<div class="hint">水やり予定は設定されていません（編集から間隔を入れると作成できます）。</div>') +
+          : '<div class="hint">水やり予定は設定されていません。</div>') +
       '</div>' +
 
       '<div class="section"><h3>記録</h3>' +
@@ -1394,8 +1639,7 @@ textarea { min-height: 70px; resize: vertical; }
       (p.memo ? '<div class="section"><h3>メモ</h3><div style="font-size:14px;white-space:pre-wrap;">' + escapeHtml(p.memo) + '</div></div>' : '') +
 
       '<div class="section"><h3>アイコン写真を変更</h3>' +
-        '<input type="file" id="photoInput" accept="image/*">' +
-        '<div class="hint">一覧のアイコンとして表示されます（記録の写真より優先）。</div></div>';
+        '<input type="file" id="photoInput" accept="image/*"></div>';
 
     $("detailOverlay").classList.add("open");
 
@@ -1419,7 +1663,11 @@ textarea { min-height: 70px; resize: vertical; }
       } catch (err) { toast("写真を読み込めませんでした"); }
     };
     $("detailBody").querySelectorAll("[data-photo]").forEach((b) => {
-      b.onclick = () => openPhoto(photos[Number(b.dataset.photo)]);
+      b.onclick = async () => {
+        const ph = photos[Number(b.dataset.photo)];
+        const src = await getPhotoSrc(ph.src);
+        if (src) openPhoto({ src, cap: ph.cap });
+      };
     });
     $("detailBody").querySelectorAll("[data-del-diary]").forEach((btn) => {
       btn.onclick = () => {
@@ -1451,7 +1699,12 @@ textarea { min-height: 70px; resize: vertical; }
   };
 
   // ===== 内容ごとの記録履歴 =====
+  let histPlantId = null, histAction = null;
+  function refreshHistory() {
+    if ($("historyOverlay").classList.contains("open") && histPlantId) openHistory(histPlantId, histAction);
+  }
   function openHistory(plantId, action) {
+    histPlantId = plantId; histAction = action;
     const p = state.plants.find((x) => x.id === plantId);
     if (!p) return;
     const list = state.logs.filter((l) => l.plantId === plantId && l.action === action)
@@ -1462,13 +1715,21 @@ textarea { min-height: 70px; resize: vertical; }
           const m = measureText(l);
           return '<div class="item" style="align-items:flex-start;"><span><b>' + escapeHtml(l.date) + '</b>' +
             (m ? '<br><span class="measure">' + escapeHtml(m) + '</span>' : '') +
+            (l.tags && l.tags.length ? '<br>' + tagChipsHtml(l.tags) : '') +
             (l.memo ? '<br><small>' + escapeHtml(l.memo) + '</small>' : '') + '</span>' +
-            (l.photo ? '<img src="' + l.photo + '" alt="" data-hphoto="' + escapeHtml(l.date) + '" style="width:64px;height:64px;object-fit:cover;border-radius:10px;cursor:pointer;flex-shrink:0;">' : '') +
+            (l.photo ? photoImg(l.photo, 'data-hphoto="' + escapeHtml(l.date) + '" style="width:64px;height:64px;object-fit:cover;border-radius:10px;cursor:pointer;flex-shrink:0;"') : '') +
+            '<button class="secondary" style="padding:10px 16px;font-size:15px;min-width:72px;min-height:44px;flex-shrink:0;" data-hedit="' + l.id + '">編集</button>' +
             '</div>';
         }).join("")
       : '<div class="hint">この内容の記録はありません。</div>';
     $("historyBody").querySelectorAll("img[data-hphoto]").forEach((img) => {
       img.onclick = () => openPhoto({ src: img.src, cap: img.dataset.hphoto + " ・ " + action });
+    });
+    $("historyBody").querySelectorAll("[data-hedit]").forEach((b) => {
+      b.onclick = () => {
+        const log = state.logs.find((x) => x.id === b.dataset.hedit);
+        if (log) openLog(log.date, log, null, null, true);
+      };
     });
     $("historyOverlay").classList.add("open");
   }
@@ -1533,8 +1794,9 @@ textarea { min-height: 70px; resize: vertical; }
           const m = measureText(l);
           return '<div class="item"><span>' + icon + ' <b>' + escapeHtml(plantName(l.plantId)) + '</b> ・ ' + escapeHtml(l.action) +
             (m ? '<br><span class="measure">' + escapeHtml(m) + '</span>' : '') +
+            (l.tags && l.tags.length ? '<br>' + tagChipsHtml(l.tags) : '') +
             (l.memo ? '<br><small>' + escapeHtml(l.memo) + '</small>' : '') +
-            (l.photo ? '<br><img src="' + l.photo + '" alt="" style="width:100%;max-width:220px;border-radius:10px;margin-top:6px;">' : '') +
+            (l.photo ? '<br>' + photoImg(l.photo, 'style="width:100%;max-width:220px;border-radius:10px;margin-top:6px;"') : '') +
             '</span>' +
             '<span style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">' +
             '<button class="secondary" style="padding:10px 16px;font-size:15px;min-width:72px;min-height:44px;" data-edit-log="' + l.id + '">編集</button>' +
@@ -1580,16 +1842,18 @@ textarea { min-height: 70px; resize: vertical; }
   function renderPicker() {
     $("pickPlants").innerHTML = state.plants.map((p) => {
       const photo = p.photo || latestLogPhoto(p.id);
-      const thumb = photo ? '<img src="' + photo + '" alt="">' : CATS[catOf(p)].icon;
+      const thumb = photo ? photoImg(photo) : CATS[catOf(p)].icon;
       return '<div class="pick-row' + (pickPlantIds.includes(p.id) ? ' selected' : '') + '" data-pick="' + p.id + '" style="' + plantStyle(p) + '">' +
         '<div class="pick-avatar">' + thumb + '</div>' +
         '<div class="pick-name">' + escapeHtml(p.name) + '</div>' +
         '<div class="radio"></div></div>';
     }).join("");
-    if (pickAction === "その他" && pickPlantIds.length > 1) pickAction = null;
+    const multi = pickPlantIds.length > 1;
+    const hiddenWhenMulti = ["様子メモ", "その他"];
+    if (multi && hiddenWhenMulti.includes(pickAction)) pickAction = null;
     $("pickSave").disabled = !(pickAction && pickPlantIds.length >= 1);
     $("pickSave").textContent = "記録";
-    $("pickActions").innerHTML = ACTIONS.filter((a) => !(a === "その他" && pickPlantIds.length > 1)).map((a) =>
+    $("pickActions").innerHTML = ACTIONS.filter((a) => !(multi && hiddenWhenMulti.includes(a))).map((a) =>
       '<button class="action-tile' + (pickAction === a ? ' on' : '') + '" data-action="' + a + '" style="--c:' + ACTION_STYLE[a].c + ';">' +
       '<span class="ei">' + ACTION_STYLE[a].i + '</span>' + a + '</button>').join("");
   }
@@ -1641,12 +1905,44 @@ textarea { min-height: 70px; resize: vertical; }
     toast(n + "株に記録しました");
   };
 
+  // ===== 記録のタグ選択（一覧から選ぶ。追加・削除は設定の「状態タグ」で行う） =====
+  let logTags = [];          // いま開いている記録で選んでいるタグ
+
+  function setTagsOpen(open) {
+    $("lTagsBody").style.display = open ? "" : "none";
+    $("lTagsCaret").textContent = open ? "▲" : "▼";
+  }
+  function renderLogTags() {
+    const all = tagList();
+    const names = all.concat(logTags.filter((t) => !all.includes(t)));
+    $("lTagsBox").style.display = names.length ? "" : "none";
+    $("lTagsSel").textContent = logTags.length ? logTags.length + "件選択中" : "";
+    $("lTags").innerHTML = names.map((t) =>
+      '<button type="button" class="tag-chip pick' + (logTags.includes(t) ? ' on' : '') + '" data-tag="' + escapeHtml(t) + '">' +
+      escapeHtml(t) + '</button>').join("");
+  }
+  function resetLogTags(log) {
+    logTags = log && Array.isArray(log.tags) ? log.tags.slice() : [];
+    setTagsOpen(logTags.length > 0);
+    renderLogTags();
+  }
+
+  $("lTags").onclick = (e) => {
+    const b = e.target.closest("[data-tag]");
+    if (!b) return;
+    const name = b.dataset.tag;
+    logTags = logTags.includes(name) ? logTags.filter((t) => t !== name) : logTags.concat(name);
+    renderLogTags();
+  };
+  $("lTagsToggle").onclick = () => setTagsOpen($("lTagsBody").style.display === "none");
+
   // ===== 記録の追加・編集（日付・サイズ・写真・メモ） =====
   // ---------- 記録の追加・編集 ----------
-  function setLogPhoto(data) {
+  async function setLogPhoto(data) {
     logPhotoData = data;
     if (data) {
-      $("lPhotoPreview").src = data;
+      const src = await getPhotoSrc(data);
+      if (src) $("lPhotoPreview").src = src;
       $("lPhotoPreview").style.display = "block";
       $("lPhotoClear").style.display = "inline-block";
     } else {
@@ -1669,7 +1965,9 @@ textarea { min-height: 70px; resize: vertical; }
     setLogDate(ymd(dt.getFullYear(), dt.getMonth(), dt.getDate()));
   }
 
-  function openLog(date, log, presetPlantId, presetAction) {
+  let logFromHistory = false;   // 履歴から開いた記録は、保存後に履歴へ戻る
+  function openLog(date, log, presetPlantId, presetAction, fromHistory) {
+    logFromHistory = !!fromHistory;
     if (state.plants.length === 0) { toast("先に植物を登録してください"); return; }
     logEditId = log ? log.id : null;
     $("logTitle").textContent = log ? "記録を編集" : "記録する";
@@ -1683,6 +1981,7 @@ textarea { min-height: 70px; resize: vertical; }
     $("lMemo").value = log ? log.memo : "";
     $("lPhoto").value = "";
     setLogPhoto(log && log.photo ? log.photo : null);
+    resetLogTags(log);
     $("logOverlay").classList.add("open");
   }
   function parseMm(id) {
@@ -1701,7 +2000,7 @@ textarea { min-height: 70px; resize: vertical; }
     const date = $("lDate").value || dayKey || todayStr();
     const action = $("lAction").value;
     const memo = $("lMemo").value.trim();
-    const data = { date, plantId, action, memo, height: h.value, diameter: dia.value, photo: logPhotoData || null };
+    const data = { date, plantId, action, memo, height: h.value, diameter: dia.value, photo: logPhotoData || null, tags: logTags.slice() };
     if (logEditId) {
       const log = state.logs.find((x) => x.id === logEditId);
       if (log) Object.assign(log, data);
@@ -1720,6 +2019,8 @@ textarea { min-height: 70px; resize: vertical; }
     dayKey = date;
     renderAll();
     if (detailId) openDetail(detailId);
+    refreshHistory();
+    if (logFromHistory) return;
     if (!$("dayOverlay").classList.contains("open")) openDay(date);
     else renderDay();
   }
@@ -1736,6 +2037,114 @@ textarea { min-height: 70px; resize: vertical; }
   };
   $("lPhotoClear").onclick = () => { setLogPhoto(null); $("lPhoto").value = ""; };
 
+  // ===== 状態タグの管理（設定から開く。追加と削除） =====
+  function renderTagCount() {
+    $("tagCount").textContent = "登録 " + tagList().length + "件";
+  }
+  function renderTagManager() {
+    $("tagList").innerHTML = tagList().map((t) =>
+      '<div class="item tag-row" data-tag="' + escapeHtml(t) + '"><span>' + escapeHtml(t) + '</span>' +
+      '<button class="danger" style="padding:10px 16px;font-size:15px;min-width:72px;min-height:44px;" data-del-tag="' + escapeHtml(t) + '">削除</button></div>').join("");
+    renderTagCount();
+  }
+  function openTagManager() {
+    $("tagNew").value = "";
+    renderTagManager();
+    $("tagOverlay").classList.add("open");
+  }
+  function addTagFromInput() {
+    const name = $("tagNew").value.trim();
+    if (!name) return;
+    const all = tagList();
+    if (all.includes(name)) { toast("すでにあります"); return; }
+    if (all.length >= TAG_MAX_COUNT) { toast("タグが多すぎます。整理してください"); return; }
+    all.push(name);
+    if (!save()) { all.pop(); return; }
+    $("tagNew").value = "";
+    renderTagManager();
+  }
+
+  $("tagManageBtn").onclick = openTagManager;
+  $("tagAdd").onclick = addTagFromInput;
+  $("tagNew").addEventListener("keydown", (e) => { if (e.key === "Enter") addTagFromInput(); });
+  $("tagClose").onclick = () => closeOverlay("tagOverlay");
+  $("tagList").onclick = (e) => {
+    const b = e.target.closest("[data-del-tag]");
+    if (!b) return;
+    const name = b.dataset.delTag;
+    askConfirm("「" + name + "」を削除しますか？記録に付けたタグは残ります。", () => {
+      const all = tagList();
+      const i = all.indexOf(name);
+      if (i >= 0) all.splice(i, 1);
+      if (save()) renderTagManager();
+    });
+  };
+
+  // 長押しして上下にドラッグすると順番を入れ替えられる
+  (function () {
+    const box = $("tagList");
+    let row = null, timer = null, active = false, startY = 0, baseTop = 0, pid = null;
+    function end(commit) {
+      clearTimeout(timer);
+      if (row && active) {
+        row.classList.remove("dragging");
+        row.style.transform = "";
+        box.classList.remove("sorting");
+        if (commit) {
+          const order = Array.from(box.querySelectorAll(".tag-row")).map((r) => r.dataset.tag);
+          const all = tagList();
+          const before = all.slice();
+          if (order.length === all.length && order.join("\n") !== before.join("\n")) {
+            all.splice(0, all.length, ...order);
+            if (!save()) all.splice(0, all.length, ...before);
+          }
+        }
+        renderTagManager();
+      }
+      row = null; active = false; pid = null;
+    }
+    box.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button") || !e.isPrimary) return;
+      const r = e.target.closest(".tag-row");
+      if (!r) return;
+      row = r; startY = e.clientY; pid = e.pointerId; active = false;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (!row) return;
+        active = true;
+        baseTop = row.offsetTop;
+        row.classList.add("dragging");
+        box.classList.add("sorting");
+        try { row.setPointerCapture(pid); } catch (_) {}
+        if (navigator.vibrate) navigator.vibrate(12);
+      }, 380);
+    });
+    box.addEventListener("pointermove", (e) => {
+      if (!row || e.pointerId !== pid) return;
+      if (!active) {
+        if (Math.abs(e.clientY - startY) > 8) { clearTimeout(timer); row = null; }
+        return;
+      }
+      e.preventDefault();
+      const prev = row.previousElementSibling, next = row.nextElementSibling;
+      const dy = e.clientY - startY - (row.offsetTop - baseTop);
+      row.style.transform = "translateY(" + dy + "px)";
+      const rc = row.getBoundingClientRect(), mid = rc.top + rc.height / 2;
+      if (prev) { const pr = prev.getBoundingClientRect(); if (mid < pr.top + pr.height / 2) { box.insertBefore(row, prev); } }
+      if (next) { const nr = next.getBoundingClientRect(); if (mid > nr.top + nr.height / 2) { box.insertBefore(next, row); } }
+      const dy2 = e.clientY - startY - (row.offsetTop - baseTop);
+      row.style.transform = "translateY(" + dy2 + "px)";
+      // 画面の端に近いときは一覧を自動でスクロール
+      const sc = box.closest(".sheet");
+      if (sc) { const sr = sc.getBoundingClientRect(); if (e.clientY < sr.top + 50) sc.scrollTop -= 8; else if (e.clientY > sr.bottom - 50) sc.scrollTop += 8; }
+    });
+    box.addEventListener("pointerup", () => end(true));
+    box.addEventListener("pointercancel", () => end(false));
+    box.addEventListener("contextmenu", (e) => { if (e.target.closest(".tag-row")) e.preventDefault(); });
+    // 長押し中に画面がスクロールしないようにする
+    box.addEventListener("touchmove", (e) => { if (active) e.preventDefault(); }, { passive: false });
+  })();
+
   // ===== バックアップの書き出し・読み込み =====
   // ---------- バックアップ ----------
   async function getCap(name) {
@@ -1744,22 +2153,29 @@ textarea { min-height: 70px; resize: vertical; }
     } catch (e) { /* 利用できない環境 */ }
     return null;
   }
+  // 書き出しに成功した日を覚えておく（設定画面の「最終バックアップ」表示に使う）
+  function markBackup() {
+    state.settings.lastBackup = todayStr();
+    save();
+    renderBackupInfo();
+  }
   async function exportData() {
     const payload = {
       app: "plantManager", version: 2, exportedAt: new Date().toISOString(),
-      data: { plants: state.plants, logs: state.logs, settings: state.settings }
+      data: await portableData()
     };
     const json = JSON.stringify(payload);
     const filename = "plant-manager-" + todayStr() + ".json";
     const dl = await getCap("downloads");
     if (dl) {
-      try { await dl.save({ filename, data: json }); toast("書き出しました"); return; }
+      try { await dl.save({ filename, data: json }); markBackup(); toast("書き出しました"); return; }
       catch (e) { if (e && e.code === "declined") return; }
     }
     const file = new File([json], filename, { type: "application/json" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: "Verdant Log のバックアップ" });
+        markBackup();
         toast("書き出しました");
         return;
       } catch (e) {
@@ -1775,6 +2191,7 @@ textarea { min-height: 70px; resize: vertical; }
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 4000);
+      markBackup();
     } catch (e) { /* 次の表示で対応 */ }
     $("exportText").value = json;
     $("exportFallback").style.display = "block";
@@ -1801,7 +2218,7 @@ textarea { min-height: 70px; resize: vertical; }
     const d = obj && obj.data;
     if (!d || !Array.isArray(d.plants) || !Array.isArray(d.logs)) { toast("Verdant Log のバックアップファイルではありません"); return; }
     askConfirm("現在のデータを、選んだファイルの内容に置き換えます。よろしいですか？", () => {
-      state.plants = d.plants.slice(0, MAX_PLANTS);
+      state.plants = d.plants;
       state.logs = d.logs;
       if (d.settings) state.settings = Object.assign({ theme: "system", size: "normal" }, d.settings);
       migrate();
@@ -1827,6 +2244,7 @@ textarea { min-height: 70px; resize: vertical; }
   viewYear = now.getFullYear();
   viewMonth = now.getMonth();
   updateHeader("calendar");
+  initPhotos();
   loadData().catch(() => {}).then(() => { applySettings(); renderAll(); });
 })();
 </script>
