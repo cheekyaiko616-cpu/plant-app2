@@ -77,9 +77,12 @@ header.calendar-head h1 { display: none; }
 .wheel-band { position: absolute; left: 0; right: 0; top: 80px; height: 40px; background: var(--accent-soft); border-radius: 10px; pointer-events: none; z-index: 0; }
 .wheel { position: relative; z-index: 1; flex: 1; height: 200px; overflow-y: auto; scroll-snap-type: y mandatory; text-align: center; padding: 80px 0; }
 .wheel::-webkit-scrollbar { display: none; }
-.wheel .wi { height: 40px; line-height: 40px; scroll-snap-align: center; font-size: 17px; color: var(--muted); }
-.wheel .wi.on { color: var(--accent); font-weight: bold; font-size: 19px; }
-main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.wheel { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; overflow-x: hidden; touch-action: pan-y; }
+/* 年月選択は縦方向のスクロールだけ（左右には動かさない） */
+#wheelOverlay .sheet, .wheel-box { touch-action: pan-y; overflow-x: hidden; }
+.wheel .wi { height: 40px; line-height: 40px; scroll-snap-align: center; font-size: 18px; color: var(--muted); transform: scale(.92); transition: transform .12s ease, color .12s ease; }
+.wheel .wi.on { color: var(--accent); font-weight: bold; transform: scale(1.08); }
+main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; }
 .view { display: none; }
 .view.active { display: block; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
@@ -102,6 +105,7 @@ main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; 
   padding: 8px 12px 8px 8px; cursor: pointer; text-align: left; color: var(--text); width: 100%;
   display: flex; flex-direction: row; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(20,40,28,0.06), 0 4px 12px rgba(20,40,28,0.04);
 }
+.card { content-visibility: auto; contain-intrinsic-size: auto 86px; }
 .card .thumb {
   width: 68px; height: 68px; flex-shrink: 0; border-radius: 14px; overflow: hidden;
   background: color-mix(in srgb, var(--c, #d7f0dc) 70%, var(--surface));
@@ -117,6 +121,23 @@ main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; 
   background: var(--accent-soft); color: var(--accent); align-self: flex-start;
 }
 .badge.warn { background: var(--warn-bg); color: var(--warn-fg); }
+/* 植物一覧の「登録数・追加」の行は、一覧をスクロールしても上に固定。背景は透かして、一覧が隠れないようにする */
+#view-plants .row-head {
+  position: sticky; top: -16px; z-index: 4;
+  margin: -16px -16px 4px; padding: 12px 16px 14px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent), transparent);
+  pointer-events: none;           /* 行の空きの部分は、下の一覧をそのまま操作できる */
+}
+#view-plants .row-head > * { pointer-events: auto; }
+#view-plants .row-head .count {
+  padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+#view-plants .row-head #addBtn {
+  background: color-mix(in srgb, var(--accent) 86%, transparent);
+  border: 1px solid color-mix(in srgb, #fff 28%, transparent);
+  box-shadow: 0 4px 14px rgba(20,40,28,0.14);
+}
 .chip {
   display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px;
   background: var(--c, #d7f0dc); color: #1f3a26;
@@ -160,7 +181,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   box-shadow: 0 -4px 14px rgba(0,0,0,0.05);
 }
 .tabbar button {
-  flex: 1; background: none; border: none; padding: 8px 2px; color: var(--muted);
+  flex: 1; background: none; border: none; padding: 12px 2px; min-height: 60px; justify-content: center; color: var(--muted);
   display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; cursor: pointer;
 }
 .splash { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: flex; align-items: center; justify-content: center; transition: opacity .45s ease, visibility .45s; }
@@ -191,13 +212,11 @@ header h1 { animation: titleIn .45s ease; }
 .sheet::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: -6px auto 12px; }
 .empty-ic { width: 72px; height: 72px; color: var(--accent2); display: block; margin: 0 auto 12px; }
 .ic { width: 1.25em; height: 1.25em; display: inline-block; vertical-align: -0.25em; flex-shrink: 0; }
-.tab-ic { width: 26px; height: 26px; display: block; }
-.tabbar button .ico { font-size: 19px; padding: 2px 12px; border-radius: 999px; transition: background .2s; }
+.tab-ic { width: 28px; height: 28px; display: block; }
+.tabbar button .ico { font-size: 19px; padding: 4px 20px; border-radius: 999px; transition: background .2s; }
 .tabbar button.active { color: var(--accent); font-weight: bold; }
 .tabbar button.active .ico { background: var(--accent-soft); }
 .tabbar button.active { color: var(--accent); }
-
-@media (prefers-reduced-motion: reduce) { .view.active, header h1 { animation: none; } }
 /* 成長グラフ */
 .seg { display: flex; gap: 6px; margin-bottom: 10px; }
 .seg button { flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; }
@@ -249,6 +268,17 @@ body.kb-open .kb-row { display: flex; }
 }
 .action-tile .ei { font-size: 26px; }
 .action-tile.on { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* 記録画面：内容ボタンを小さくして、植物の選択欄を広げる */
+#pickOverlay .section { margin-top: 10px; padding-top: 10px; }
+#pickOverlay .section h3 { margin-bottom: 6px; }
+#pickOverlay .action-grid { gap: 8px; }
+#pickOverlay .action-tile { padding: 8px 4px; border-radius: 12px; gap: 2px; font-size: 12px; }
+#pickOverlay .action-tile .ei { font-size: 20px; }
+#pickOverlay .btns { margin-top: 8px; }
+/* 植物選択の上端：スクロールして上に隠れる行は、すっと透けて消える（内容ボタン側は透かさない） */
+#pickPlants::before { content: ""; position: sticky; top: 0; display: block; height: 26px; margin-bottom: -26px; z-index: 2; pointer-events: none;
+  background: linear-gradient(to bottom, var(--surface), transparent); opacity: 0; transition: opacity .18s ease; }
+#pickPlants.scrolled::before { opacity: 1; }
 /* 写真ギャラリー */
 .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; }
 .gallery button { border: none; padding: 0; background: none; cursor: pointer; border-radius: 10px; overflow: hidden; aspect-ratio: 1 / 1; }
@@ -277,7 +307,7 @@ main:has(#view-settings.active), main:has(#view-growth.active) { padding-bottom:
 .overlay.open { display: flex; }
 .sheet {
   background: var(--surface); color: var(--text); width: 100%; max-width: 560px;
-  max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; border-radius: 22px 22px 0 0;
+  max-height: 90vh; overflow-y: auto; overscroll-behavior-y: auto; border-radius: 22px 22px 0 0;
   padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
 }
 .sheet h2 { font-size: 18px; font-weight: 600; letter-spacing: 0.04em; margin: 0 0 12px; color: var(--accent); }
@@ -303,6 +333,10 @@ textarea { min-height: 70px; resize: vertical; }
 .diary-entry { padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
 .diary-entry .date { color: var(--muted); font-size: 12px; }
 .diary-entry img { width: 100%; border-radius: 12px; margin-top: 6px; }
+
+/* 画面は縦にだけ動かす（横には動かさない）。日付欄が画面幅をはみ出さないようにする */
+.sheet { overflow-x: hidden; touch-action: pan-y; }
+input[type="date"] { min-width: 0; max-width: 100%; display: block; -webkit-appearance: none; appearance: none; min-height: 42px; }
 .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
 .tabs button { flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; }
 .tabs button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: bold; }
@@ -356,11 +390,33 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
 /* お世話の記録（植物の選択）画面：内容は固定し、植物の一覧だけをスクロールさせる */
 #pickOverlay .sheet { display: flex; flex-direction: column; overflow: hidden; }
 #pickOverlay .sheet > * { flex-shrink: 0; }
-#pickOverlay #pickPlants { flex: 1 1 auto; min-height: 96px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+#pickOverlay #pickPlants { flex: 1 1 auto; min-height: 96px; overflow-y: auto; overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; }
 #logOverlay .size-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 #logOverlay .size-row span { font-size: 14px; color: var(--muted); }
 #logOverlay .size-row span:first-child { width: 40px; }
 #logOverlay .size-row input { flex: 1; min-width: 0; }
+
+/* 植物の追加・編集画面を、できるだけスクロールせず1画面に収めるための詰め方（この画面だけ） */
+#editOverlay .sheet { max-height: 96vh; padding: 12px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+#editOverlay .sheet::before { margin: 0 auto 6px; }
+#editOverlay .sheet h2 { margin: 0 0 4px; }
+#editOverlay label { margin: 8px 0 3px; font-size: 13px; }
+#editOverlay input[type="text"], #editOverlay input[type="number"], #editOverlay select, #editOverlay input[type="date"] { padding: 8px 10px; }
+#editOverlay .tabs { margin-bottom: 0; }
+#editOverlay .tabs button { padding: 6px 4px; font-size: 13px; white-space: nowrap; }
+#editOverlay textarea { min-height: 52px; height: 52px; resize: none; }
+#editOverlay .two { gap: 10px; }
+#editOverlay .two > div { min-width: 0; }
+#editOverlay .btns { margin-top: 4px; padding: 8px 0 calc(2px + env(safe-area-inset-bottom, 0px)); }
+@media (min-height: 760px) {
+  #editOverlay .sheet { padding-top: 18px; }
+  #editOverlay label { margin-top: 12px; }
+  #editOverlay textarea { height: 64px; min-height: 64px; }
+}
+#editOverlay .photo-row { display: flex; align-items: center; gap: 8px; }
+#editOverlay .photo-row input[type="file"] { flex: 1; min-width: 0; }
+#editOverlay .photo-preview { width: 44px; height: 44px; max-height: none; margin: 0; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+#editOverlay #fPhotoClear { padding: 6px 12px; font-size: 12px; flex-shrink: 0; }
 /* 余白の調整：縦に余裕のある画面(最近のiPhone)では、記録画面の間隔を広げる。小さい画面は今までどおり詰めて1画面に収める */
 @media (min-height: 760px) {
   #logOverlay .sheet { padding-top: 18px; }
@@ -490,25 +546,30 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     <h2 id="editTitle">植物を追加</h2>
     <label>名前</label>
     <input type="text" id="fName" maxlength="30">
-    <label>種類の選び方</label>
-    <div class="tabs">
+    <label>アイコン写真（任意）</label>
+    <div class="photo-row">
+      <input type="file" id="fPhoto" accept="image/*">
+      <img id="fPhotoPreview" class="photo-preview" alt="" style="display:none;">
+      <button class="secondary" id="fPhotoClear" type="button" style="display:none;">外す</button>
+    </div>
+    <div class="tabs" style="margin-top:10px;">
       <button id="typeSelectTab" type="button" class="active">大分類・品種から選ぶ</button>
       <button id="typeTextTab" type="button">自由に入力</button>
     </div>
     <div id="selectMode">
-      <label>大分類</label>
-      <select id="fCat"></select>
-      <label>品種</label>
-      <select id="fVar"></select>
+      <div class="two">
+        <div><label>大分類</label><select id="fCat"></select></div>
+        <div><label>品種</label><select id="fVar"></select></div>
+      </div>
       <input type="text" id="fVarOther" maxlength="30" style="display:none;margin-top:8px;">
     </div>
     <div id="textMode" style="display:none;">
       <input type="text" id="fTypeText" maxlength="30">
     </div>
-    <label>購入日・迎えた日</label>
-    <input type="date" id="fAcquired">
-    <label>水やりの間隔（日）</label>
-    <input type="number" id="fInterval" min="1" max="365">
+    <div class="two">
+      <div><label>購入日・迎えた日</label><input type="date" id="fAcquired"></div>
+      <div><label>水やり間隔（日）</label><input type="number" id="fInterval" min="1" max="365"></div>
+    </div>
     <label>メモ</label>
     <textarea id="fMemo" maxlength="300"></textarea>
     <div class="btns">
@@ -896,10 +957,12 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
   ["detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "plantPickOverlay", "tagOverlay"].forEach((id) => {
     const sheet = $(id).querySelector(".sheet");
     const CLOSE_AT = 120;          // この距離（px）引っ張ったら閉じる
-    let sx = 0, sy = 0, atTop = false, pulling = false;
+    let sx = 0, sy = 0, atTop = false, pulling = false, pullY = 0, raf = 0;
     function snapBack() {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
       sheet.style.transition = "transform .2s ease";
       sheet.style.transform = "";
+      setTimeout(() => { if (!pulling) sheet.style.willChange = ""; }, 260);
     }
     sheet.addEventListener("touchstart", (e) => {
       if (e.touches.length !== 1) { atTop = false; return; }
@@ -921,8 +984,13 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
         if (isField(document.activeElement)) document.activeElement.blur();
       }
       if (e.cancelable) e.preventDefault();
-      sheet.style.transition = "none";
-      sheet.style.transform = "translateY(" + Math.max(0, (dy - 8) * 0.6) + "px)";
+      pullY = Math.max(0, (dy - 8) * 0.6);
+      if (!raf) raf = requestAnimationFrame(() => {
+        raf = 0;
+        sheet.style.willChange = "transform";
+        sheet.style.transition = "none";
+        sheet.style.transform = "translate3d(0," + pullY + "px,0)";
+      });
     }, { passive: false });
     sheet.addEventListener("touchend", (e) => {
       if (!pulling) return;
@@ -933,13 +1001,15 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
         // 画面を下へ滑り落としてから閉じる
         if (isField(document.activeElement)) document.activeElement.blur();
         sheet.style.transition = "transform .24s cubic-bezier(.4,0,1,1)";
-        sheet.style.transform = "translateY(" + (window.innerHeight + 40) + "px)";
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        sheet.style.transform = "translate3d(0," + (window.innerHeight + 40) + "px,0)";
         let done = false;
         const finish = () => {
           if (done) return;
           done = true;
           sheet.style.transition = "none";
           sheet.style.transform = "";
+          sheet.style.willChange = "";
           closeOverlay(id);
         };
         sheet.addEventListener("transitionend", finish, { once: true });
@@ -1282,10 +1352,21 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     const max = el.children.length - 1;
     return Number(el.dataset.from) + Math.max(0, Math.min(max, idx));
   }
+  // 選択中の行の強調：動いたときだけ、前後の2行だけを更新する（スクロール中の負荷を減らす）
+  const wheelOn = {};
   function markWheel(id) {
     const el = $(id);
-    const v = wheelValue(id);
-    [...el.children].forEach((c, i) => c.classList.toggle("on", i === v - Number(el.dataset.from)));
+    const idx = wheelValue(id) - Number(el.dataset.from);
+    if (wheelOn[id] === idx && el.children[idx] && el.children[idx].classList.contains("on")) return;
+    const prev = el.querySelector(".wi.on");
+    if (prev) prev.classList.remove("on");
+    if (el.children[idx]) el.children[idx].classList.add("on");
+    wheelOn[id] = idx;
+  }
+  const wheelTick = {};
+  function markWheelSoon(id) {
+    if (wheelTick[id]) return;
+    wheelTick[id] = requestAnimationFrame(() => { wheelTick[id] = 0; markWheel(id); });
   }
   function scrollWheelTo(id, value) {
     const el = $(id);
@@ -1353,8 +1434,8 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     closeOverlay("wheelOverlay");
     renderCalendar();
   };
-  $("wheelY").addEventListener("scroll", () => markWheel("wheelY"));
-  $("wheelM").addEventListener("scroll", () => markWheel("wheelM"));
+  $("wheelY").addEventListener("scroll", () => markWheelSoon("wheelY"), { passive: true });
+  $("wheelM").addEventListener("scroll", () => markWheelSoon("wheelM"), { passive: true });
 
   $("prevM").onclick = () => moveMonth(-1);
   $("nextM").onclick = () => moveMonth(1);
@@ -1631,8 +1712,25 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     $("selectMode").style.display = isSelect ? "block" : "none";
     $("textMode").style.display = isSelect ? "none" : "block";
   }
+  // 植物のアイコン写真（追加・編集の画面で選ぶ）
+  let editPhoto = null;
+  async function setEditPhoto(data) {
+    editPhoto = data || null;
+    if (editPhoto) {
+      const src = await getPhotoSrc(editPhoto);
+      if (src) $("fPhotoPreview").src = src;
+      $("fPhotoPreview").style.display = "block";
+      $("fPhotoClear").style.display = "inline-block";
+    } else {
+      $("fPhotoPreview").removeAttribute("src");
+      $("fPhotoPreview").style.display = "none";
+      $("fPhotoClear").style.display = "none";
+    }
+  }
   function openEdit(p) {
     editingId = p ? p.id : null;
+    $("fPhoto").value = "";
+    setEditPhoto(p && p.photo ? p.photo : null);
     $("editTitle").textContent = p ? "植物を編集" : "植物を追加";
     $("fName").value = p ? p.name : "";
     $("fVarOther").value = "";
@@ -1680,6 +1778,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
       acquired: $("fAcquired").value || null,
       waterInterval,
       memo: $("fMemo").value.trim(),
+      photo: editPhoto,
     };
     if (editingId) {
       const p = state.plants.find((x) => x.id === editingId);
@@ -1699,6 +1798,13 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
   $("fVar").onchange = toggleVarOther;
   $("editCancel").onclick = () => closeOverlay("editOverlay");
   $("editSave").onclick = saveEdit;
+  $("fPhoto").onchange = async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try { await setEditPhoto(await resizeImage(f, PHOTO_MAX, PHOTO_Q)); }
+    catch (err) { toast("写真を読み込めませんでした"); }
+  };
+  $("fPhotoClear").onclick = () => { setEditPhoto(null); $("fPhoto").value = ""; };
   $("typeSelectTab").onclick = () => setTypeMode("select");
   $("typeTextTab").onclick = () => setTypeMode("text");
 
@@ -1966,6 +2072,8 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     pickAction = null;
     renderPicker();
     $("pickOverlay").classList.add("open");
+    $("pickPlants").scrollTop = 0;
+    $("pickPlants").classList.remove("scrolled");
   }
   function renderPicker() {
     $("pickPlants").innerHTML = state.plants.map((p) => {
@@ -1986,6 +2094,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
       '<span class="ei">' + ACTION_STYLE[a].i + '</span>' + a + '</button>').join("");
   }
 
+  $("pickPlants").addEventListener("scroll", () => $("pickPlants").classList.toggle("scrolled", $("pickPlants").scrollTop > 2), { passive: true });
   $("pickCancel").onclick = () => { pickAction = null; closeOverlay("pickOverlay"); };
   $("pickPlants").onclick = (e) => {
     const r = e.target.closest("[data-pick]");
