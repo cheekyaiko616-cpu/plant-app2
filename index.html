@@ -877,6 +877,64 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
       }
     }, { passive: true });
   });
+  // ===== 画面の一番上で下へ引っ張ると閉じる（左右スワイプで戻れない画面向け） =====
+  ["detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "plantPickOverlay", "tagOverlay"].forEach((id) => {
+    const sheet = $(id).querySelector(".sheet");
+    const CLOSE_AT = 120;          // この距離（px）引っ張ったら閉じる
+    let sx = 0, sy = 0, atTop = false, pulling = false;
+    function snapBack() {
+      sheet.style.transition = "transform .2s ease";
+      sheet.style.transform = "";
+    }
+    sheet.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1) { atTop = false; return; }
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+      atTop = sheet.scrollTop <= 0;
+      pulling = false;
+    }, { passive: true });
+    sheet.addEventListener("touchmove", (e) => {
+      if (!atTop) return;
+      // タグの並べ替え中は、引っ張りで閉じない
+      if (sheet.querySelector(".sorting")) { atTop = false; return; }
+      const dy = e.touches[0].clientY - sy;
+      const dx = e.touches[0].clientX - sx;
+      if (!pulling) {
+        // 下向きで、横より縦の動きが大きいときだけ引っ張りとして扱う
+        if (dy <= 8 || Math.abs(dx) > dy) return;
+        pulling = true;
+        if (isField(document.activeElement)) document.activeElement.blur();
+      }
+      if (e.cancelable) e.preventDefault();
+      sheet.style.transition = "none";
+      sheet.style.transform = "translateY(" + Math.max(0, (dy - 8) * 0.6) + "px)";
+    }, { passive: false });
+    sheet.addEventListener("touchend", (e) => {
+      if (!pulling) return;
+      pulling = false;
+      atTop = false;
+      const dy = e.changedTouches[0].clientY - sy;
+      if (dy - 8 >= CLOSE_AT) {
+        // 画面を下へ滑り落としてから閉じる
+        if (isField(document.activeElement)) document.activeElement.blur();
+        sheet.style.transition = "transform .24s cubic-bezier(.4,0,1,1)";
+        sheet.style.transform = "translateY(" + (window.innerHeight + 40) + "px)";
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          sheet.style.transition = "none";
+          sheet.style.transform = "";
+          closeOverlay(id);
+        };
+        sheet.addEventListener("transitionend", finish, { once: true });
+        setTimeout(finish, 320);
+      } else {
+        snapBack();
+      }
+    }, { passive: true });
+    sheet.addEventListener("touchcancel", () => { pulling = false; atTop = false; snapBack(); }, { passive: true });
+  });
 
   // ===== 拡大・縮小の無効化 =====
   // ---------- 拡大・縮小の無効化 ----------
