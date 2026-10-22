@@ -71,7 +71,6 @@ header.calendar-head h1 { display: none; }
 .month-pick .caret { font-size: 12px; margin-left: 4px; color: #1f5c3a; }
 .month-pick { gap: 8px; }
 .today-btn { font: inherit; font-size: 14px; font-weight: bold; background: transparent; color: #fff; border: 2px solid #fff; border-radius: 12px; padding: 4px 12px; cursor: pointer; white-space: nowrap; }
-
 .wheel-head { display: flex; justify-content: space-between; margin-bottom: 8px; }
 .wheel-box { position: relative; display: flex; height: 200px; }
 .wheel-band { position: absolute; left: 0; right: 0; top: 80px; height: 40px; background: var(--accent-soft); border-radius: 10px; pointer-events: none; z-index: 0; }
@@ -79,7 +78,6 @@ header.calendar-head h1 { display: none; }
 .wheel::-webkit-scrollbar { display: none; }
 .wheel .wi { height: 40px; line-height: 40px; scroll-snap-align: center; font-size: 17px; color: var(--muted); }
 .wheel .wi.on { color: var(--accent); font-weight: bold; font-size: 19px; }
-
 main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .view { display: none; }
 .view.active { display: block; }
@@ -89,7 +87,6 @@ main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; 
 .day-text { flex: 1; text-align: center; font-weight: bold; font-size: 16px; color: var(--text); }
 .count { color: var(--muted); font-size: 13px; }
 .row-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-
 .hero {
   background: var(--hero); color: #fff; border-radius: 18px; padding: 10px 14px; cursor: pointer;
   margin-bottom: 14px; box-shadow: 0 4px 14px rgba(47,107,76,0.18); position: relative; overflow: hidden;
@@ -98,7 +95,6 @@ main { padding: 16px 16px 110px; max-width: 720px; width: 100%; margin: 0 auto; 
 .hero .item small { color: rgba(255,255,255,0.9); }
 .hero .big { font-size: 16px; font-weight: bold; }
 .hero .small { font-size: 12px; opacity: 0.9; margin-top: 2px; }
-
 .grid { display: flex; flex-direction: column; gap: 8px; }
 .card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
@@ -133,7 +129,6 @@ button.secondary { background: var(--surface); color: var(--text); border-color:
 button.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 .empty { text-align: center; color: var(--muted); padding: 40px 0; }
-
 .cal-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 12px; box-shadow: 0 1px 2px rgba(20,40,28,0.06), 0 4px 12px rgba(20,40,28,0.04); }
 .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .cal-head .month { font-size: 17px; font-weight: bold; }
@@ -155,7 +150,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .cal-cell.today .dot { background: #ffe066; }
 .dots { display: flex; gap: 3px; min-height: 6px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); }
-
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; display: flex;
   background: var(--surface); border-top: 1px solid var(--border);
@@ -182,6 +176,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   75% { transform: translateY(0) scale(1.1, .9); }
 }
 @keyframes blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+/* 起動画面が消えるまで本体を表示しない（読み込み中にカレンダーが一瞬見えるのを防ぐ。JSに頼らずCSSだけで時間が来たら表示） */
+header, main, .tabbar { visibility: hidden; animation: revealAfterSplash 0s linear 1.45s forwards; }
+@keyframes revealAfterSplash { to { visibility: visible; } }
 @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes sheetUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .view.active { animation: viewIn .25s ease; }
@@ -194,7 +191,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .tabbar button.active { color: var(--accent); font-weight: bold; }
 .tabbar button.active .ico { background: var(--accent-soft); }
 .tabbar button.active { color: var(--accent); }
-
 /* 成長グラフ */
 .seg { display: flex; gap: 6px; margin-bottom: 10px; }
 .seg button { flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; }
@@ -209,12 +205,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .summary { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
 .stat { flex: 1; min-width: 100px; background: var(--accent-soft); color: var(--accent); border-radius: 14px; padding: 12px 14px; font-size: 12px; letter-spacing: 0.02em; }
 .stat b { display: block; font-size: 22px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; margin-top: 2px; }
-
 /* キーボードを閉じる「完了」ボタン（入力中のみ表示） */
 .kb-row { display: none; justify-content: flex-end; margin: -6px 0 4px; }
 body.kb-open .kb-row { display: flex; }
 .kb-done { background: none; border: none; color: var(--accent); font-weight: bold; font-size: 15px; padding: 4px 8px; cursor: pointer; }
-
 /* 記録の選択画面 */
 .pick-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
 .pick-avatar {
@@ -235,13 +229,11 @@ body.kb-open .kb-row { display: flex; }
 }
 .action-tile .ei { font-size: 26px; }
 .action-tile.on { outline: 3px solid var(--accent); outline-offset: 2px; }
-
 /* 写真ギャラリー */
 .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; }
 .gallery button { border: none; padding: 0; background: none; cursor: pointer; border-radius: 10px; overflow: hidden; aspect-ratio: 1 / 1; }
 .gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .photo-preview { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; margin-top: 8px; display: none; background: var(--bg); }
-
 /* 設定 */
 .setting-group { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
 .setting-group h3 { font-size: 14px; margin: 0 0 10px; }
@@ -250,7 +242,6 @@ body.kb-open .kb-row { display: flex; }
 .opt-row button.active { background: var(--hero); border-color: transparent; color: #fff; font-weight: bold; }
 textarea.export-text { width: 100%; min-height: 120px; font-size: 12px; margin-top: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); padding: 8px; }
 input[type="file"] { font-size: 13px; color: var(--muted); max-width: 100%; }
-
 .overlay {
   position: fixed; inset: 0; background: rgba(10,30,15,0.45);
   display: none; align-items: flex-end; justify-content: center; z-index: 20;
@@ -336,7 +327,6 @@ textarea { min-height: 70px; resize: vertical; }
     </div>
     <div class="hint" style="text-align:center;margin-top:10px;">日付をタップすると、その日の記録を見たり追加したりできます。</div>
   </section>
-
   <section class="view" id="view-plants">
     <div class="row-head">
       <div class="count" id="count"></div>
@@ -345,7 +335,6 @@ textarea { min-height: 70px; resize: vertical; }
     <div class="grid" id="grid"></div>
     <div class="empty" id="empty" style="display:none;"><svg class="empty-ic" aria-hidden="true"><use href="#i-agave"/></svg>まだ植物が登録されていません。<br>「＋ 追加」から登録してみましょう</div>
   </section>
-
   <section class="view" id="view-growth">
     <div class="seg" id="gPlantWrap" style="margin-bottom:10px;">
       <button id="gPlantBtn" type="button" class="plant-btn"></button>
@@ -368,7 +357,6 @@ textarea { min-height: 70px; resize: vertical; }
     <div class="summary" id="gSummary"></div>
     <div class="section" id="gList"></div>
   </section>
-
   <section class="view" id="view-settings">
     <div class="setting-group">
       <h3>テーマ（配色）</h3>
@@ -575,6 +563,7 @@ textarea { min-height: 70px; resize: vertical; }
 (function () {
   "use strict";
 
+  // ===== 定数（上限数・保存名・記録の種類・写真サイズなど） =====
   const MAX_PLANTS = 20;
   const LEGACY_KEY = "plantManager.v1";   // 旧アプリの保存名（読み取り専用で引き継ぎに使う）
   const LS_KEY2 = "verdantLog2.v1";       // IndexedDBが使えない場合の予備
@@ -587,6 +576,7 @@ textarea { min-height: 70px; resize: vertical; }
   const PHOTO_MAX = 480;      // 写真の最大辺(px)。容量を抑えるため小さめに圧縮
   const PHOTO_Q = 0.7;
 
+  // ===== 植物の分類カタログ（大分類→品種）とアイコン生成 =====
   const svgIcon = (id) => '<svg class="ic" aria-hidden="true"><use href="#i-' + id + '"/></svg>';
   const CATS = {
     "観葉植物": { icon: svgIcon("foliage"), color: "#d7f0dc", items: [
@@ -650,6 +640,7 @@ textarea { min-height: 70px; resize: vertical; }
   const CAT_ORDER = ["サボテン", "塊根植物", "多肉植物", "観葉植物", "ヤシ類", "シダ類", "常緑樹"];
   const CAT_NAMES = CAT_ORDER.concat(Object.keys(CATS).filter((c) => !CAT_ORDER.includes(c)));
 
+  // ===== アプリ全体の状態（植物・記録・設定と画面の選択状態） =====
   let state = { plants: [], logs: [], settings: { theme: "system", size: "normal" } };
   let editingId = null, detailId = null, dayKey = null, logEditId = null;
   let logPhotoData = null;
@@ -659,6 +650,7 @@ textarea { min-height: 70px; resize: vertical; }
   let gShift = 0;
   let viewYear, viewMonth;
 
+  // ===== 汎用ヘルパー（日付・ID・HTMLエスケープ） =====
   const $ = (id) => document.getElementById(id);
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const pad = (n) => String(n).padStart(2, "0");
@@ -667,6 +659,61 @@ textarea { min-height: 70px; resize: vertical; }
   const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
   const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  // ===== 植物に関する共通ヘルパー（表示名・次の水やり日・最新写真など） =====
+  // ---------- ヘルパー ----------
+  function catOf(p) { return CATS[p.category] ? p.category : OTHER; }
+  function plantLabel(p) {
+    const c = catOf(p);
+    if (p.type) return c === OTHER ? p.type : c + " ・ " + p.type;
+    return c === OTHER ? "種類未設定" : c;
+  }
+  function plantStyle(p) { return "--c:" + CATS[catOf(p)].color + ";"; }
+  function nextWaterDate(p) {
+    if (!p.waterInterval) return null;
+    const last = p.lastWatered || p.createdAt || todayStr();
+    const base = new Date(last + "T00:00:00");
+    base.setDate(base.getDate() + p.waterInterval);
+    return ymd(base.getFullYear(), base.getMonth(), base.getDate());
+  }
+  function plantName(id) {
+    const p = state.plants.find((x) => x.id === id);
+    return p ? p.name : "（削除済み）";
+  }
+  function measureText(l) {
+    const parts = [];
+    if (l.height) parts.push("高さ " + l.height + "mm");
+    if (l.diameter) parts.push("直径 " + l.diameter + "mm");
+    return parts.join(" ・ ");
+  }
+  function latestLogPhoto(plantId) {
+    const withPhoto = state.logs.filter((l) => l.plantId === plantId && l.photo)
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
+    return withPhoto.length ? withPhoto[0].photo : null;
+  }
+
+  // ===== 写真の縮小処理 =====
+  function resizeImage(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("read"));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("img"));
+        img.onload = () => {
+          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+          const c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(img.width * scale));
+          c.height = Math.max(1, Math.round(img.height * scale));
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL("image/jpeg", quality));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ===== 確認ダイアログ（はい／いいえ） =====
   let askCb = null;
   function askConfirm(msg, onYes) {
     $("askMsg").textContent = msg;
@@ -678,6 +725,11 @@ textarea { min-height: 70px; resize: vertical; }
     askCb = null;
   }
 
+  $("askNo").onclick = closeAsk;
+  $("askYes").onclick = () => { const cb = askCb; closeAsk(); if (cb) cb(); };
+  $("askOverlay").addEventListener("click", (e) => { if (e.target.id === "askOverlay") closeAsk(); });
+
+  // ===== トースト（一時メッセージ） =====
   function toast(msg) {
     const t = $("toast");
     t.textContent = msg;
@@ -686,6 +738,74 @@ textarea { min-height: 70px; resize: vertical; }
     toast._t = setTimeout(() => t.classList.remove("show"), 2200);
   }
 
+  // ===== 画面（オーバーレイ）を閉じる共通処理 =====
+  function closeOverlay(id) {
+    $(id).classList.remove("open");
+    if (id === "detailOverlay") detailId = null;
+  }
+
+  ["editOverlay", "detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "pickOverlay", "wheelOverlay", "plantPickOverlay", "logOverlay", "photoOverlay"].forEach((id) => {
+    $(id).addEventListener("click", (e) => {
+      if (e.target.id === id) closeOverlay(id);
+    });
+  });
+
+  // ===== 左から右へのスワイプで1つ前の画面へ戻る =====
+  // ---------- 左から右へのスワイプで1つ前の画面へ戻る（記録・植物の追加/編集・記録する植物選択） ----------
+  ["editOverlay", "pickOverlay", "logOverlay"].forEach((id) => {
+    const el = $(id);
+    let sx = 0, sy = 0, st = 0, active = false;
+    el.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1) { active = false; return; }
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+      st = Date.now();
+      active = true;
+    }, { passive: true });
+    el.addEventListener("touchend", (e) => {
+      if (!active) return;
+      active = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - sx, dy = t.clientY - sy;
+      if (dx > 80 && Math.abs(dy) < 60 && Date.now() - st < 700) {
+        if (isField(document.activeElement)) document.activeElement.blur();
+        closeOverlay(id);
+      }
+    }, { passive: true });
+  });
+
+  // ===== 拡大・縮小の無効化 =====
+  // ---------- 拡大・縮小の無効化 ----------
+  ["gesturestart", "gesturechange", "gestureend"].forEach((t) => {
+    document.addEventListener(t, (e) => e.preventDefault(), { passive: false });
+  });
+  document.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  // ===== キーボードの「完了」ボタンと入力確定で閉じる処理 =====
+  // ---------- キーボードを閉じる ----------
+  document.querySelectorAll(".sheet").forEach((sh) => {
+    sh.insertAdjacentHTML("afterbegin", '<div class="kb-row"><button class="kb-done" type="button">完了</button></div>');
+  });
+  document.querySelectorAll(".kb-done").forEach((b) => {
+    b.addEventListener("click", () => { if (document.activeElement) document.activeElement.blur(); });
+  });
+  document.querySelectorAll("input, textarea").forEach((el) => { el.enterKeyHint = "done"; });
+  const isField = (el) => !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
+  document.addEventListener("focusin", (e) => { if (isField(e.target)) document.body.classList.add("kb-open"); });
+  document.addEventListener("focusout", () => {
+    setTimeout(() => { if (!isField(document.activeElement)) document.body.classList.remove("kb-open"); }, 50);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type !== "file") e.target.blur();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    const a = document.activeElement;
+    if (isField(a) && !isField(e.target) && e.target.tagName !== "SELECT") a.blur();
+  }, true);
+
+  // ===== 保存・読み込み（IndexedDB／予備のlocalStorage／旧データの引き継ぎ） =====
   // ---------- 保存・読み込み ----------
   function migrate() {
     state.plants.forEach((p) => {
@@ -791,64 +911,7 @@ textarea { min-height: 70px; resize: vertical; }
     return Math.round(JSON.stringify(state).length / 1024);
   }
 
-  function applySettings() {
-    const s = state.settings;
-    document.documentElement.dataset.theme = s.theme === "system" ? "" : s.theme;
-    document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === s.theme));
-    document.querySelectorAll("[data-size-set]").forEach((b) => b.classList.toggle("active", b.dataset.sizeSet === s.size));
-  }
-
-  // ---------- ヘルパー ----------
-  function catOf(p) { return CATS[p.category] ? p.category : OTHER; }
-  function plantLabel(p) {
-    const c = catOf(p);
-    if (p.type) return c === OTHER ? p.type : c + " ・ " + p.type;
-    return c === OTHER ? "種類未設定" : c;
-  }
-  function plantStyle(p) { return "--c:" + CATS[catOf(p)].color + ";"; }
-  function nextWaterDate(p) {
-    if (!p.waterInterval) return null;
-    const last = p.lastWatered || p.createdAt || todayStr();
-    const base = new Date(last + "T00:00:00");
-    base.setDate(base.getDate() + p.waterInterval);
-    return ymd(base.getFullYear(), base.getMonth(), base.getDate());
-  }
-  function plantName(id) {
-    const p = state.plants.find((x) => x.id === id);
-    return p ? p.name : "（削除済み）";
-  }
-  function measureText(l) {
-    const parts = [];
-    if (l.height) parts.push("高さ " + l.height + "mm");
-    if (l.diameter) parts.push("直径 " + l.diameter + "mm");
-    return parts.join(" ・ ");
-  }
-  function latestLogPhoto(plantId) {
-    const withPhoto = state.logs.filter((l) => l.plantId === plantId && l.photo)
-      .sort((a, b) => (a.date < b.date ? 1 : -1));
-    return withPhoto.length ? withPhoto[0].photo : null;
-  }
-  function resizeImage(file, maxSize, quality) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error("read"));
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = () => reject(new Error("img"));
-        img.onload = () => {
-          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-          const c = document.createElement("canvas");
-          c.width = Math.max(1, Math.round(img.width * scale));
-          c.height = Math.max(1, Math.round(img.height * scale));
-          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-          resolve(c.toDataURL("image/jpeg", quality));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
+  // ===== 下部タブの切り替え =====
   // ---------- タブ ----------
   const TITLES = { calendar: "カレンダー", plants: "植物一覧", growth: "成長グラフ", settings: "設定" };
   function showTab(name) {
@@ -859,6 +922,12 @@ textarea { min-height: 70px; resize: vertical; }
     renderAll();
   }
 
+  document.querySelector(".tabbar").onclick = (e) => {
+    const b = e.target.closest("[data-tab]");
+    if (b) showTab(b.dataset.tab);
+  };
+
+  // ===== 今日の水やりの表示（ヒーロー） =====
   // ---------- ヒーロー・カレンダー ----------
   let heroOpen = false;
   function renderHero() {
@@ -884,6 +953,12 @@ textarea { min-height: 70px; resize: vertical; }
     $("heroDetail").style.display = heroOpen && dueList.length ? "block" : "none";
   }
 
+  $("hero").onclick = () => {
+    heroOpen = !heroOpen;
+    renderHero();
+  };
+
+  // ===== カレンダーと年月ホイール選択 =====
   function fillMonthPick() {
     $("pickYear").textContent = viewYear + "年";
     $("pickMonth").textContent = (viewMonth + 1) + "月";
@@ -955,6 +1030,31 @@ textarea { min-height: 70px; resize: vertical; }
     renderCalendar();
   }
 
+  $("pickBtn").onclick = openWheel;
+  $("todayBtn").onclick = () => {
+    const n = new Date();
+    viewYear = n.getFullYear();
+    viewMonth = n.getMonth();
+    renderCalendar();
+  };
+  $("wheelCancel").onclick = () => closeOverlay("wheelOverlay");
+  $("wheelOk").onclick = () => {
+    viewYear = wheelValue("wheelY");
+    viewMonth = wheelValue("wheelM") - 1;
+    closeOverlay("wheelOverlay");
+    renderCalendar();
+  };
+  $("wheelY").addEventListener("scroll", () => markWheel("wheelY"));
+  $("wheelM").addEventListener("scroll", () => markWheel("wheelM"));
+
+  $("prevM").onclick = () => moveMonth(-1);
+  $("nextM").onclick = () => moveMonth(1);
+  $("calGrid").onclick = (e) => {
+    const c = e.target.closest("[data-date]");
+    if (c) openDay(c.dataset.date);
+  };
+
+  // ===== 植物一覧 =====
   // ---------- 植物一覧 ----------
   function renderPlants() {
     const today = todayStr();
@@ -979,6 +1079,13 @@ textarea { min-height: 70px; resize: vertical; }
     }).join("");
   }
 
+  $("addBtn").onclick = () => openEdit(null);
+  $("grid").onclick = (e) => {
+    const card = e.target.closest(".card");
+    if (card) openDetail(card.dataset.id);
+  };
+
+  // ===== 成長グラフ =====
   // ---------- 成長グラフ ----------
   function renderGrowthSelect() {
     if (!state.plants.some((p) => p.id === gPlantId)) gPlantId = state.plants.length ? state.plants[0].id : null;
@@ -1070,6 +1177,39 @@ textarea { min-height: 70px; resize: vertical; }
     $("plantPickOverlay").classList.add("open");
   }
 
+  $("gPlantBtn").onclick = openPlantPick;
+  $("gPickList").onclick = (e) => {
+    const r = e.target.closest("[data-gp]");
+    if (!r) return;
+    gPlantId = r.dataset.gp;
+    gShift = 0;
+    closeOverlay("plantPickOverlay");
+    renderGrowth();
+  };
+  $("gPickCancel").onclick = () => closeOverlay("plantPickOverlay");
+  $("gPrev").onclick = () => { gShift -= 1; renderGrowth(); };
+  $("gNext").onclick = () => { if (gShift < 0) { gShift += 1; renderGrowth(); } };
+  $("gRange").addEventListener("click", () => { gShift = 0; renderGrowth(); });
+  $("gRange").onclick = (e) => {
+    const b = e.target.closest("[data-range]");
+    if (!b) return;
+    gRange = Number(b.dataset.range);
+    renderGrowth();
+  };
+  $("gMetric").onclick = (e) => {
+    const b = e.target.closest("[data-metric]");
+    if (!b) return;
+    gMetric = b.dataset.metric;
+    renderGrowth();
+  };
+
+  // ===== 設定（テーマ・データ容量表示） =====
+  function applySettings() {
+    const s = state.settings;
+    document.documentElement.dataset.theme = s.theme === "system" ? "" : s.theme;
+    document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === s.theme));
+  }
+
   // ---------- 設定 ----------
   function renderSettings() {
     const base = "登録 " + state.plants.length + "株・記録 " + state.logs.length + "件・保存容量 約" + storageKB() + "KB";
@@ -1083,8 +1223,15 @@ textarea { min-height: 70px; resize: vertical; }
     } catch (err) { /* 未対応 */ }
     applySettings();
   }
-  function renderAll() { renderHero(); renderCalendar(); renderPlants(); renderGrowth(); renderSettings(); }
 
+  $("themeOpts").onclick = (e) => {
+    const b = e.target.closest("[data-theme-set]");
+    if (!b) return;
+    state.settings.theme = b.dataset.themeSet;
+    save(); applySettings();
+  };
+
+  // ===== 植物の追加・編集 =====
   // ---------- 植物の追加・編集 ----------
   function fillCategorySelect(selected) {
     $("fCat").innerHTML = CAT_NAMES.map((c) => '<option value="' + c + '">' + CATS[c].icon + " " + c + '</option>').join("");
@@ -1175,6 +1322,14 @@ textarea { min-height: 70px; resize: vertical; }
     if (detailId) openDetail(detailId);
   }
 
+  $("fCat").onchange = () => fillVarSelect(null);
+  $("fVar").onchange = toggleVarOther;
+  $("editCancel").onclick = () => closeOverlay("editOverlay");
+  $("editSave").onclick = saveEdit;
+  $("typeSelectTab").onclick = () => setTypeMode("select");
+  $("typeTextTab").onclick = () => setTypeMode("text");
+
+  // ===== 植物の詳細 =====
   // ---------- 植物の詳細 ----------
   function openDetail(id) {
     detailId = id;
@@ -1276,6 +1431,26 @@ textarea { min-height: 70px; resize: vertical; }
     });
   }
 
+  $("detailClose").onclick = () => closeOverlay("detailOverlay");
+  $("editBtn").onclick = () => {
+    const p = state.plants.find((x) => x.id === detailId);
+    if (p) openEdit(p);
+  };
+  $("deleteBtn").onclick = () => {
+    const p = state.plants.find((x) => x.id === detailId);
+    if (!p) return;
+    askConfirm("「" + p.name + "」を削除しますか？日記と記録も一緒に消えます。", () => {
+      state.plants = state.plants.filter((x) => x.id !== p.id);
+      state.logs = state.logs.filter((x) => x.plantId !== p.id);
+      if (save()) {
+        closeOverlay("detailOverlay");
+        renderAll();
+        toast("削除しました");
+      }
+    });
+  };
+
+  // ===== 内容ごとの記録履歴 =====
   function openHistory(plantId, action) {
     const p = state.plants.find((x) => x.id === plantId);
     if (!p) return;
@@ -1298,6 +1473,9 @@ textarea { min-height: 70px; resize: vertical; }
     $("historyOverlay").classList.add("open");
   }
 
+  $("historyClose").onclick = () => closeOverlay("historyOverlay");
+
+  // ===== 写真の拡大表示 =====
   function openPhoto(ph) {
     if (!ph) return;
     $("photoImg").src = ph.src;
@@ -1305,6 +1483,9 @@ textarea { min-height: 70px; resize: vertical; }
     $("photoOverlay").classList.add("open");
   }
 
+  $("photoClose").onclick = () => closeOverlay("photoOverlay");
+
+  // ===== 日記 =====
   // ---------- 日記 ----------
   function openDiary() {
     $("dDate").value = todayStr();
@@ -1331,6 +1512,10 @@ textarea { min-height: 70px; resize: vertical; }
     toast("日記を保存しました");
   }
 
+  $("diaryCancel").onclick = () => closeOverlay("diaryOverlay");
+  $("diarySave").onclick = saveDiary;
+
+  // ===== 日ごとの記録画面 =====
   // ---------- 日ごとの記録 ----------
   function openDay(key) {
     dayKey = key;
@@ -1373,6 +1558,10 @@ textarea { min-height: 70px; resize: vertical; }
     });
   }
 
+  $("dayClose").onclick = () => closeOverlay("dayOverlay");
+  $("dayAdd").onclick = () => openPicker(dayKey, null);
+
+  // ===== 記録の選択画面（植物と内容を選ぶ） =====
   // ---------- 記録の選択画面 ----------
   const ACTION_STYLE = {
     "水やり": { i: svgIcon("drop"), c: "#cfe8ff" }, "植え替え": { i: svgIcon("plant"), c: "#f3e3d3" },
@@ -1405,6 +1594,54 @@ textarea { min-height: 70px; resize: vertical; }
       '<span class="ei">' + ACTION_STYLE[a].i + '</span>' + a + '</button>').join("");
   }
 
+  $("pickCancel").onclick = () => { pickAction = null; closeOverlay("pickOverlay"); };
+  $("pickPlants").onclick = (e) => {
+    const r = e.target.closest("[data-pick]");
+    if (!r) return;
+    const id = r.dataset.pick;
+    pickPlantIds = pickPlantIds.includes(id) ? pickPlantIds.filter((x) => x !== id) : pickPlantIds.concat(id);
+    renderPicker();
+  };
+  $("pickActions").onclick = (e) => {
+    const b = e.target.closest("[data-action]");
+    if (!b) return;
+    const action = b.dataset.action;
+    if (pickPlantIds.length === 0) { pickAction = action; renderPicker(); return; }
+    if (pickPlantIds.length === 1) {
+      openLog(pickDate, null, pickPlantIds[0], action);
+      return;
+    }
+    pickAction = action;
+    renderPicker();
+  };
+  $("pickSave").onclick = () => {
+    if (!pickAction || pickPlantIds.length < 1) return;
+    if (pickPlantIds.length === 1) {
+      openLog(pickDate, null, pickPlantIds[0], pickAction);
+      return;
+    }
+    const action = pickAction;
+    // 複数選択時は日付と内容だけをまとめて記録（サイズ・写真・メモは入れない）
+    pickPlantIds.forEach((id) => {
+      state.logs.push({ id: uid(), date: pickDate, plantId: id, action, memo: "", height: null, diameter: null, photo: null });
+      if (action === "水やり") {
+        const p = state.plants.find((x) => x.id === id);
+        if (p && (!p.lastWatered || pickDate > p.lastWatered)) p.lastWatered = pickDate;
+      }
+    });
+    const n = pickPlantIds.length;
+    if (!save()) return;
+    pickAction = null;
+    closeOverlay("pickOverlay");
+    dayKey = pickDate;
+    renderAll();
+    if (detailId) openDetail(detailId);
+    if (!$("dayOverlay").classList.contains("open")) openDay(pickDate);
+    else renderDay();
+    toast(n + "株に記録しました");
+  };
+
+  // ===== 記録の追加・編集（日付・サイズ・写真・メモ） =====
   // ---------- 記録の追加・編集 ----------
   function setLogPhoto(data) {
     logPhotoData = data;
@@ -1487,6 +1724,19 @@ textarea { min-height: 70px; resize: vertical; }
     else renderDay();
   }
 
+  $("logCancel").onclick = () => closeOverlay("logOverlay");
+  $("lPrev").onclick = () => shiftLogDate(-1);
+  $("lNext").onclick = () => shiftLogDate(1);
+  $("logSave").onclick = saveLog;
+  $("lPhoto").onchange = async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try { setLogPhoto(await resizeImage(f, PHOTO_MAX, PHOTO_Q)); }
+    catch (err) { toast("写真を読み込めませんでした"); }
+  };
+  $("lPhotoClear").onclick = () => { setLogPhoto(null); $("lPhoto").value = ""; };
+
+  // ===== バックアップの書き出し・読み込み =====
   // ---------- バックアップ ----------
   async function getCap(name) {
     try {
@@ -1559,243 +1809,19 @@ textarea { min-height: 70px; resize: vertical; }
     });
   }
 
-  function closeOverlay(id) {
-    $(id).classList.remove("open");
-    if (id === "detailOverlay") detailId = null;
-  }
-
-  // ---------- イベント ----------
-  document.querySelector(".tabbar").onclick = (e) => {
-    const b = e.target.closest("[data-tab]");
-    if (b) showTab(b.dataset.tab);
-  };
-  $("pickBtn").onclick = openWheel;
-  $("todayBtn").onclick = () => {
-    const n = new Date();
-    viewYear = n.getFullYear();
-    viewMonth = n.getMonth();
-    renderCalendar();
-  };
-  $("wheelCancel").onclick = () => closeOverlay("wheelOverlay");
-  $("wheelOk").onclick = () => {
-    viewYear = wheelValue("wheelY");
-    viewMonth = wheelValue("wheelM") - 1;
-    closeOverlay("wheelOverlay");
-    renderCalendar();
-  };
-  $("wheelY").addEventListener("scroll", () => markWheel("wheelY"));
-  $("wheelM").addEventListener("scroll", () => markWheel("wheelM"));
-  $("hero").onclick = () => {
-    heroOpen = !heroOpen;
-    renderHero();
-  };
-  $("prevM").onclick = () => moveMonth(-1);
-  $("nextM").onclick = () => moveMonth(1);
-  $("calGrid").onclick = (e) => {
-    const c = e.target.closest("[data-date]");
-    if (c) openDay(c.dataset.date);
-  };
-
-  $("addBtn").onclick = () => openEdit(null);
-  $("grid").onclick = (e) => {
-    const card = e.target.closest(".card");
-    if (card) openDetail(card.dataset.id);
-  };
-
-  $("gPlantBtn").onclick = openPlantPick;
-  $("gPickList").onclick = (e) => {
-    const r = e.target.closest("[data-gp]");
-    if (!r) return;
-    gPlantId = r.dataset.gp;
-    gShift = 0;
-    closeOverlay("plantPickOverlay");
-    renderGrowth();
-  };
-  $("gPickCancel").onclick = () => closeOverlay("plantPickOverlay");
-  $("gPrev").onclick = () => { gShift -= 1; renderGrowth(); };
-  $("gNext").onclick = () => { if (gShift < 0) { gShift += 1; renderGrowth(); } };
-  $("gRange").addEventListener("click", () => { gShift = 0; renderGrowth(); });
-  $("gRange").onclick = (e) => {
-    const b = e.target.closest("[data-range]");
-    if (!b) return;
-    gRange = Number(b.dataset.range);
-    renderGrowth();
-  };
-  $("gMetric").onclick = (e) => {
-    const b = e.target.closest("[data-metric]");
-    if (!b) return;
-    gMetric = b.dataset.metric;
-    renderGrowth();
-  };
-
-  $("themeOpts").onclick = (e) => {
-    const b = e.target.closest("[data-theme-set]");
-    if (!b) return;
-    state.settings.theme = b.dataset.themeSet;
-    save(); applySettings();
-  };
   $("exportBtn").onclick = exportData;
   $("copyExport").onclick = copyExport;
   $("importFile").onchange = importFile;
 
-  $("fCat").onchange = () => fillVarSelect(null);
-  $("fVar").onchange = toggleVarOther;
-  $("editCancel").onclick = () => closeOverlay("editOverlay");
-  $("editSave").onclick = saveEdit;
-  $("typeSelectTab").onclick = () => setTypeMode("select");
-  $("typeTextTab").onclick = () => setTypeMode("text");
-
-  $("detailClose").onclick = () => closeOverlay("detailOverlay");
-  $("editBtn").onclick = () => {
-    const p = state.plants.find((x) => x.id === detailId);
-    if (p) openEdit(p);
-  };
-  $("deleteBtn").onclick = () => {
-    const p = state.plants.find((x) => x.id === detailId);
-    if (!p) return;
-    askConfirm("「" + p.name + "」を削除しますか？日記と記録も一緒に消えます。", () => {
-      state.plants = state.plants.filter((x) => x.id !== p.id);
-      state.logs = state.logs.filter((x) => x.plantId !== p.id);
-      if (save()) {
-        closeOverlay("detailOverlay");
-        renderAll();
-        toast("削除しました");
-      }
-    });
-  };
-
-  $("askNo").onclick = closeAsk;
-  $("askYes").onclick = () => { const cb = askCb; closeAsk(); if (cb) cb(); };
-  $("askOverlay").addEventListener("click", (e) => { if (e.target.id === "askOverlay") closeAsk(); });
-
-  $("historyClose").onclick = () => closeOverlay("historyOverlay");
-  $("pickCancel").onclick = () => { pickAction = null; closeOverlay("pickOverlay"); };
-  $("pickPlants").onclick = (e) => {
-    const r = e.target.closest("[data-pick]");
-    if (!r) return;
-    const id = r.dataset.pick;
-    pickPlantIds = pickPlantIds.includes(id) ? pickPlantIds.filter((x) => x !== id) : pickPlantIds.concat(id);
-    renderPicker();
-  };
-  $("pickActions").onclick = (e) => {
-    const b = e.target.closest("[data-action]");
-    if (!b) return;
-    const action = b.dataset.action;
-    if (pickPlantIds.length === 0) { pickAction = action; renderPicker(); return; }
-    if (pickPlantIds.length === 1) {
-      openLog(pickDate, null, pickPlantIds[0], action);
-      return;
-    }
-    pickAction = action;
-    renderPicker();
-  };
-  $("pickSave").onclick = () => {
-    if (!pickAction || pickPlantIds.length < 1) return;
-    if (pickPlantIds.length === 1) {
-      openLog(pickDate, null, pickPlantIds[0], pickAction);
-      return;
-    }
-    const action = pickAction;
-    // 複数選択時は日付と内容だけをまとめて記録（サイズ・写真・メモは入れない）
-    pickPlantIds.forEach((id) => {
-      state.logs.push({ id: uid(), date: pickDate, plantId: id, action, memo: "", height: null, diameter: null, photo: null });
-      if (action === "水やり") {
-        const p = state.plants.find((x) => x.id === id);
-        if (p && (!p.lastWatered || pickDate > p.lastWatered)) p.lastWatered = pickDate;
-      }
-    });
-    const n = pickPlantIds.length;
-    if (!save()) return;
-    pickAction = null;
-    closeOverlay("pickOverlay");
-    dayKey = pickDate;
-    renderAll();
-    if (detailId) openDetail(detailId);
-    if (!$("dayOverlay").classList.contains("open")) openDay(pickDate);
-    else renderDay();
-    toast(n + "株に記録しました");
-  };
-  $("diaryCancel").onclick = () => closeOverlay("diaryOverlay");
-  $("diarySave").onclick = saveDiary;
-
-  $("dayClose").onclick = () => closeOverlay("dayOverlay");
-  $("dayAdd").onclick = () => openPicker(dayKey, null);
-  $("logCancel").onclick = () => closeOverlay("logOverlay");
-  $("lPrev").onclick = () => shiftLogDate(-1);
-  $("lNext").onclick = () => shiftLogDate(1);
-  $("logSave").onclick = saveLog;
-  $("lPhoto").onchange = async (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    try { setLogPhoto(await resizeImage(f, PHOTO_MAX, PHOTO_Q)); }
-    catch (err) { toast("写真を読み込めませんでした"); }
-  };
-  $("lPhotoClear").onclick = () => { setLogPhoto(null); $("lPhoto").value = ""; };
-  $("photoClose").onclick = () => closeOverlay("photoOverlay");
-
-  ["editOverlay", "detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "pickOverlay", "wheelOverlay", "plantPickOverlay", "logOverlay", "photoOverlay"].forEach((id) => {
-    $(id).addEventListener("click", (e) => {
-      if (e.target.id === id) closeOverlay(id);
-    });
-  });
-
-  // ---------- 左から右へのスワイプで1つ前の画面へ戻る（記録・植物の追加/編集・記録する植物選択） ----------
-  ["editOverlay", "pickOverlay", "logOverlay"].forEach((id) => {
-    const el = $(id);
-    let sx = 0, sy = 0, st = 0, active = false;
-    el.addEventListener("touchstart", (e) => {
-      if (e.touches.length !== 1) { active = false; return; }
-      sx = e.touches[0].clientX;
-      sy = e.touches[0].clientY;
-      st = Date.now();
-      active = true;
-    }, { passive: true });
-    el.addEventListener("touchend", (e) => {
-      if (!active) return;
-      active = false;
-      const t = e.changedTouches[0];
-      const dx = t.clientX - sx, dy = t.clientY - sy;
-      if (dx > 80 && Math.abs(dy) < 60 && Date.now() - st < 700) {
-        if (isField(document.activeElement)) document.activeElement.blur();
-        closeOverlay(id);
-      }
-    }, { passive: true });
-  });
-
-  // ---------- 拡大・縮小の無効化 ----------
-  ["gesturestart", "gesturechange", "gestureend"].forEach((t) => {
-    document.addEventListener(t, (e) => e.preventDefault(), { passive: false });
-  });
-  document.addEventListener("touchmove", (e) => {
-    if (e.touches.length > 1) e.preventDefault();
-  }, { passive: false });
-
-  // ---------- キーボードを閉じる ----------
-  document.querySelectorAll(".sheet").forEach((sh) => {
-    sh.insertAdjacentHTML("afterbegin", '<div class="kb-row"><button class="kb-done" type="button">完了</button></div>');
-  });
-  document.querySelectorAll(".kb-done").forEach((b) => {
-    b.addEventListener("click", () => { if (document.activeElement) document.activeElement.blur(); });
-  });
-  document.querySelectorAll("input, textarea").forEach((el) => { el.enterKeyHint = "done"; });
-  const isField = (el) => !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
-  document.addEventListener("focusin", (e) => { if (isField(e.target)) document.body.classList.add("kb-open"); });
-  document.addEventListener("focusout", () => {
-    setTimeout(() => { if (!isField(document.activeElement)) document.body.classList.remove("kb-open"); }, 50);
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type !== "file") e.target.blur();
-  });
-  document.addEventListener("pointerdown", (e) => {
-    const a = document.activeElement;
-    if (isField(a) && !isField(e.target) && e.target.tagName !== "SELECT") a.blur();
-  }, true);
-
+  // ===== 起動画面 =====
   // ---------- 起動画面 ----------
   const SPLASH_ICONS = ["caudex", "agave", "cactus"];
   $("splashIc").innerHTML = '<use href="#i-' + SPLASH_ICONS[Math.floor(Math.random() * SPLASH_ICONS.length)] + '"/>';
   setTimeout(() => $("splash").classList.add("hide"), 1500);
   setTimeout(() => { const sp = $("splash"); if (sp) sp.remove(); }, 2100);
+
+  // ===== 全体の再描画と起動処理 =====
+  function renderAll() { renderHero(); renderCalendar(); renderPlants(); renderGrowth(); renderSettings(); }
 
   const now = new Date();
   viewYear = now.getFullYear();
