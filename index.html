@@ -919,9 +919,36 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
   }
 
   // ===== 画面（オーバーレイ）を閉じる共通処理 =====
-  function closeOverlay(id) {
-    $(id).classList.remove("open");
+  // mode: 省略＝下へ滑り落ちて閉じる／"right"＝右へ滑って閉じる（左→右スワイプ）／"instant"＝すぐ消す
+  function closeOverlay(id, mode) {
+    const el = $(id);
+    const sheet = el.querySelector(".sheet");
     if (id === "detailOverlay") detailId = null;
+    if (el.dataset.closing) return;
+    if (!sheet || mode === "instant" || !el.classList.contains("open")) { el.classList.remove("open"); return; }
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    el.dataset.closing = "1";
+    el.style.pointerEvents = "none";
+    el.style.transition = "background-color .24s ease";
+    el.style.backgroundColor = "transparent";
+    sheet.style.transition = "transform .24s cubic-bezier(.4,0,1,1)";
+    sheet.style.transform = mode === "right" ? "translate3d(100%,0,0)" : "translate3d(0," + (window.innerHeight + 40) + "px,0)";
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      delete el.dataset.closing;
+      el.classList.remove("open");
+      sheet.style.transition = "none";
+      sheet.style.transform = "";
+      el.style.pointerEvents = "";
+      el.style.transition = "";
+      el.style.backgroundColor = "";
+      void sheet.offsetWidth;
+      sheet.style.transition = "";
+    };
+    sheet.addEventListener("transitionend", finish, { once: true });
+    setTimeout(finish, 320);
   }
 
   ["editOverlay", "detailOverlay", "historyOverlay", "diaryOverlay", "dayOverlay", "pickOverlay", "wheelOverlay", "plantPickOverlay", "logOverlay", "photoOverlay", "tagOverlay"].forEach((id) => {
@@ -949,7 +976,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
       const dx = t.clientX - sx, dy = t.clientY - sy;
       if (dx > 80 && Math.abs(dy) < 60 && Date.now() - st < 700) {
         if (isField(document.activeElement)) document.activeElement.blur();
-        closeOverlay(id);
+        closeOverlay(id, "right");
       }
     }, { passive: true });
   });
@@ -1010,7 +1037,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
           sheet.style.transition = "none";
           sheet.style.transform = "";
           sheet.style.willChange = "";
-          closeOverlay(id);
+          closeOverlay(id, "instant");
         };
         sheet.addEventListener("transitionend", finish, { once: true });
         setTimeout(finish, 320);
