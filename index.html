@@ -244,10 +244,11 @@ header h1 { animation: titleIn .45s ease; }
 .g-d-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; }
 .g-d-act { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: bold; white-space: nowrap; }
 .g-d-data { margin-top: 4px; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-/* キーボードを閉じる「完了」ボタン（入力中のみ表示） */
-.kb-row { display: none; justify-content: flex-end; margin: -6px 0 4px; }
-body.kb-open .kb-row { display: flex; }
-.kb-done { background: none; border: none; color: var(--accent); font-weight: bold; font-size: 15px; padding: 4px 8px; cursor: pointer; }
+/* キーボードを閉じる「完了」ボタン（入力中のみ表示）。場所を取らない配置にして、入力欄にさわったときに画面の大きさが変わらないようにする */
+.kb-row { position: sticky; top: 0; z-index: 6; height: 0; display: flex; justify-content: flex-end; overflow: visible; pointer-events: none; opacity: 0; transition: opacity .15s ease; }
+body.kb-open .kb-row { opacity: 1; }
+.kb-done { background: var(--accent-soft); border: none; border-radius: 999px; color: var(--accent); font-weight: bold; font-size: 14px; padding: 4px 12px; margin-top: 0; cursor: pointer; pointer-events: none; }
+body.kb-open .kb-done { pointer-events: auto; }
 /* 記録の選択画面 */
 .pick-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
 .pick-avatar {
@@ -335,7 +336,7 @@ textarea { min-height: 70px; resize: vertical; }
 .diary-entry img { width: 100%; border-radius: 12px; margin-top: 6px; }
 
 /* 画面は縦にだけ動かす（横には動かさない）。日付欄が画面幅をはみ出さないようにする */
-.sheet { overflow-x: hidden; touch-action: pan-y; }
+.sheet { overflow-x: hidden; overscroll-behavior-x: none; }
 input[type="date"] { min-width: 0; max-width: 100%; display: block; -webkit-appearance: none; appearance: none; min-height: 42px; }
 .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
 .tabs button { flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; }
@@ -920,12 +921,22 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
 
   // ===== 画面（オーバーレイ）を閉じる共通処理 =====
   // mode: 省略＝下へ滑り落ちて閉じる／"right"＝右へ滑って閉じる（左→右スワイプ）／"instant"＝すぐ消す
+  // 画面を開く共通処理。閉じている途中だったら、閉じる動きを取りやめてそのまま開いた状態にする
+  function openOverlay(id) {
+    const el = $(id);
+    if (el._cancelClose) el._cancelClose();
+    el.classList.add("open");
+  }
+  function blurInside(el) {
+    const a = document.activeElement;
+    if (a && a !== document.body && el.contains(a) && a.blur) a.blur();
+  }
   function closeOverlay(id, mode) {
     const el = $(id);
     const sheet = el.querySelector(".sheet");
     if (id === "detailOverlay") detailId = null;
     if (el.dataset.closing) return;
-    if (!sheet || mode === "instant" || !el.classList.contains("open")) { el.classList.remove("open"); return; }
+    if (!sheet || mode === "instant" || !el.classList.contains("open")) { blurInside(el); el.classList.remove("open"); return; }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     el.dataset.closing = "1";
     el.style.pointerEvents = "none";
@@ -934,16 +945,30 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     sheet.style.transition = "transform .24s cubic-bezier(.4,0,1,1)";
     sheet.style.transform = mode === "right" ? "translate3d(100%,0,0)" : "translate3d(0," + (window.innerHeight + 40) + "px,0)";
     let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
+    const reset = () => {
       delete el.dataset.closing;
-      el.classList.remove("open");
-      sheet.style.transition = "none";
-      sheet.style.transform = "";
+      el._cancelClose = null;
       el.style.pointerEvents = "";
       el.style.transition = "";
       el.style.backgroundColor = "";
+    };
+    el._cancelClose = () => {
+      if (done) return;
+      done = true;
+      sheet.style.transition = "none";
+      sheet.style.transform = "";
+      reset();
+      void sheet.offsetWidth;
+      sheet.style.transition = "";
+    };
+    const finish = () => {
+      if (done) return;
+      done = true;
+      blurInside(el);
+      el.classList.remove("open");
+      sheet.style.transition = "none";
+      sheet.style.transform = "";
+      reset();
       void sheet.offsetWidth;
       sheet.style.transition = "";
     };
@@ -1078,6 +1103,14 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     const a = document.activeElement;
     if (isField(a) && !isField(e.target) && e.target.tagName !== "SELECT") a.blur();
   }, true);
+  // iPhone(iOS 26)では、キーボードを閉じたあとも表示位置がずれたまま戻らないことがあるため、元の位置に戻す
+  function realignViewport() {
+    if (isField(document.activeElement)) return;
+    const vv = window.visualViewport;
+    if (window.scrollX || window.scrollY || (vv && vv.offsetTop > 0.5)) window.scrollTo(0, 0);
+  }
+  document.addEventListener("focusout", () => { setTimeout(realignViewport, 120); setTimeout(realignViewport, 400); });
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", () => { setTimeout(realignViewport, 80); });
 
   // ===== 写真の保存（記録とは別の場所に保存し、必要なときだけ読み込む） =====
   // ---------- 写真 ----------
@@ -1403,7 +1436,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
   function openWheel() {
     fillWheel("wheelY", 2000, 2099, "年");
     fillWheel("wheelM", 1, 12, "月");
-    $("wheelOverlay").classList.add("open");
+    openOverlay("wheelOverlay");
     scrollWheelTo("wheelY", viewYear);
     scrollWheelTo("wheelM", viewMonth + 1);
   }
@@ -1632,7 +1665,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
         '<div class="pick-name">' + escapeHtml(p.name) + '</div>' +
         '<div class="radio"></div></div>';
     }).join("");
-    $("plantPickOverlay").classList.add("open");
+    openOverlay("plantPickOverlay");
   }
 
   $("gPlantBtn").onclick = openPlantPick;
@@ -1779,7 +1812,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     $("fAcquired").value = p && p.acquired ? p.acquired : "";
     $("fInterval").value = p && p.waterInterval ? p.waterInterval : "";
     $("fMemo").value = p && p.memo ? p.memo : "";
-    $("editOverlay").classList.add("open");
+    openOverlay("editOverlay");
   }
   function saveEdit() {
     const name = $("fName").value.trim();
@@ -1902,7 +1935,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
       '<div class="section"><h3>アイコン写真を変更</h3>' +
         '<input type="file" id="photoInput" accept="image/*"></div>';
 
-    $("detailOverlay").classList.add("open");
+    openOverlay("detailOverlay");
 
     const wb = $("waterBtn");
     if (wb) wb.onclick = () => {
@@ -1992,7 +2025,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
         if (log) openLog(log.date, log, null, null, true);
       };
     });
-    $("historyOverlay").classList.add("open");
+    openOverlay("historyOverlay");
   }
 
   $("historyClose").onclick = () => closeOverlay("historyOverlay");
@@ -2002,7 +2035,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     if (!ph) return;
     $("photoImg").src = ph.src;
     $("photoCap").textContent = ph.cap;
-    $("photoOverlay").classList.add("open");
+    openOverlay("photoOverlay");
   }
 
   $("photoClose").onclick = () => closeOverlay("photoOverlay");
@@ -2013,7 +2046,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     $("dDate").value = todayStr();
     $("dText").value = "";
     $("dPhoto").value = "";
-    $("diaryOverlay").classList.add("open");
+    openOverlay("diaryOverlay");
   }
   async function saveDiary() {
     const p = state.plants.find((x) => x.id === detailId);
@@ -2042,7 +2075,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
   function openDay(key) {
     dayKey = key;
     renderDay();
-    $("dayOverlay").classList.add("open");
+    openOverlay("dayOverlay");
   }
   function renderDay() {
     const [y, m, d] = dayKey.split("-").map(Number);
@@ -2098,7 +2131,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     pickPlantIds = presetPlantId ? [presetPlantId] : [];
     pickAction = null;
     renderPicker();
-    $("pickOverlay").classList.add("open");
+    openOverlay("pickOverlay");
     $("pickPlants").scrollTop = 0;
     $("pickPlants").classList.remove("scrolled");
   }
@@ -2246,7 +2279,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
     $("lPhoto").value = "";
     setLogPhoto(log && log.photo ? log.photo : null);
     resetLogTags(log);
-    $("logOverlay").classList.add("open");
+    openOverlay("logOverlay");
   }
   function parseMm(id) {
     const raw = $(id).value.trim();
@@ -2314,7 +2347,7 @@ button.tag-chip.pick.on { background: var(--accent-soft); border-color: var(--ac
   function openTagManager() {
     $("tagNew").value = "";
     renderTagManager();
-    $("tagOverlay").classList.add("open");
+    openOverlay("tagOverlay");
   }
   function addTagFromInput() {
     const name = $("tagNew").value.trim();
