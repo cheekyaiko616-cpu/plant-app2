@@ -446,11 +446,6 @@ img[data-ph] { background: color-mix(in srgb, var(--border) 60%, transparent); }
 /* キーボード操作のときだけ、いま選んでいる場所を枠で示す（タッチ操作では出ない） */
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .sheet:focus, .frame:focus { outline: none; }
-
-/* 「視覚効果を減らす」設定の人には、動きを省く */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Verdant Log 2">
