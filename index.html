@@ -453,6 +453,8 @@ img[data-ph] { background: color-mix(in srgb, var(--border) 60%, transparent); }
 @keyframes dayFromLeft { from { opacity: .4; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
 .overlay.open .sheet.day-from-right { animation: dayFromRight .22s ease; }
 .overlay.open .sheet.day-from-left { animation: dayFromLeft .22s ease; }
+.cal-grid.day-from-right { animation: dayFromRight .22s ease; }
+.cal-grid.day-from-left { animation: dayFromLeft .22s ease; }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Verdant Log 2">
@@ -1805,6 +1807,33 @@ img[data-ph] { background: color-mix(in srgb, var(--border) 60%, transparent); }
 
   $("prevM").onclick = () => moveMonth(-1);
   $("nextM").onclick = () => moveMonth(1);
+  // 左右にスワイプして月を移る（左へスワイプ＝次の月、右へスワイプ＝前の月）。縦のスクロールとは、動き始めの向きで分ける
+  (() => {
+    const view = $("view-calendar"), grid = $("calGrid");
+    let sx = 0, sy = 0, st = 0, active = false, axis = "";
+    view.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1) { active = false; return; }
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); active = true; axis = "";
+    }, { passive: true });
+    view.addEventListener("touchmove", (e) => {
+      if (!active || axis) return;
+      const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+      if (Math.hypot(dx, dy) >= 12) axis = swipeAxis(dx, dy);
+    }, { passive: true });
+    view.addEventListener("touchend", (e) => {
+      if (!active) return;
+      active = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - sx, dy = t.clientY - sy;
+      if (axis === "h" && Math.abs(dx) > 60 && Math.abs(dy) < Math.abs(dx) * 0.6 && Date.now() - st < 700) {
+        moveMonth(dx < 0 ? 1 : -1);
+        grid.classList.remove("day-from-right", "day-from-left");
+        void grid.offsetWidth;   // アニメーションを最初からやり直す
+        grid.classList.add(dx < 0 ? "day-from-right" : "day-from-left");
+      }
+    }, { passive: true });
+    view.addEventListener("touchcancel", () => { active = false; }, { passive: true });
+  })();
   $("calGrid").onclick = (e) => {
     const c = e.target.closest("[data-date]");
     if (c) openDay(c.dataset.date);
